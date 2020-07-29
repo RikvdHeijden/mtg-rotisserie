@@ -1,0 +1,7 @@
+name: rotissery
+recipe: laravel
+config:
+  php: '7.4'
+  via: nginx
+  webroot: public
+  database: mysql
