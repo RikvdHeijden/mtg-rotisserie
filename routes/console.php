@@ -14,6 +14,6 @@ use Illuminate\Support\Facades\Artisan;
 |
 */
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->describe('Display an inspiring quote');
+Artisan::command('startDraft', function () {
+    event(new \App\Events\DraftStarts(\App\Draft::first()));
+})->describe('Start a draft');
