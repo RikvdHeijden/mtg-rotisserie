@@ -14,3 +14,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/drafts/{draft}', 'DraftController@show');
+Route::post('/draft/{draft}/pick', 'PickController@store');

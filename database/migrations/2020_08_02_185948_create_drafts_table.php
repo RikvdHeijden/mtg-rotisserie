@@ -16,6 +16,7 @@ class CreateDraftsTable extends Migration
         Schema::create('drafts', function (Blueprint $table) {
             $table->id();
             $table->integer('set_id')->unsigned();
+            $table->integer('active_player_index')->unsigned()->default(0);
             $table->timestamps();
         });
     }

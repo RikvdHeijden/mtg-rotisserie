@@ -24,7 +24,14 @@ class Draft extends Model
             'set' => $this->set->config(),
             'players' => $this->players->each(function (Player $player) {
                 return $player->config();
-            })
+            }),
+            'activePlayer' => $this->players->get($this->active_player_index)->id
         ];
+    }
+
+    public function proceedToNextPlayer()
+    {
+        $this->active_player_index = ($this->active_player_index + 1) % $this->players->count();
+        $this->save();
     }
 }

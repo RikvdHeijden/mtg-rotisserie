@@ -14,6 +14,7 @@ class Card extends Model
     public function config()
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'text' => $this->text
         ];

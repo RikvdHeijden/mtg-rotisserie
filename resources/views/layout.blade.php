@@ -7,7 +7,7 @@
 
     <title>Draft</title>
 
-    <link type="text/css" href="{{ asset('css/app.css') }}">
+    <link type="text/css" href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
 <div id="app">

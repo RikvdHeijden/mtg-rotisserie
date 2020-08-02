@@ -14,6 +14,7 @@ class Player extends Model
     public function config()
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
         ];
     }

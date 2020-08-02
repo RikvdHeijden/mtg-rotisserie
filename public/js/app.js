@@ -1927,6 +1927,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['config'],
   data: function data() {
@@ -1935,18 +1939,31 @@ __webpack_require__.r(__webpack_exports__);
         set: {
           name: 'test',
           cards: [{
+            id: 1,
             name: 'name',
             text: 'text'
           }]
         },
         players: [{
+          id: 1,
           name: 'test'
-        }]
+        }],
+        activePlayer: 1
       }
     };
   },
   mounted: function mounted() {
     this.draft = JSON.parse(this.config);
+    console.log(this.draft.activePlayer);
+  },
+  methods: {
+    chooseCard: function chooseCard(card) {
+      var _this = this;
+
+      axios.post('/draft/1/pick', card).then(function (res) {
+        _this.draft = res.data;
+      });
+    }
   }
 });
 
@@ -43574,9 +43591,19 @@ var render = function() {
     _c(
       "ul",
       _vm._l(_vm.draft.players, function(player) {
-        return _c("li", [
-          _vm._v("\n            " + _vm._s(player.name) + "\n        ")
-        ])
+        return _c(
+          "li",
+          { class: { "player--active": player.id === _vm.draft.activePlayer } },
+          [
+            _vm._v(
+              "\n            " +
+                _vm._s(player.id) +
+                " " +
+                _vm._s(player.name) +
+                "\n        "
+            )
+          ]
+        )
       }),
       0
     ),
@@ -43593,6 +43620,11 @@ var render = function() {
               height: "300px",
               "background-color": "brown",
               margin: "5px"
+            },
+            on: {
+              click: function($event) {
+                return _vm.chooseCard(card)
+              }
             }
           },
           [

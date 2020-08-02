@@ -10928,3 +10928,7 @@ a.text-dark:focus {
   }
 }
 
+.player--active {
+  background-color: #0C9A9A;
+}
+
