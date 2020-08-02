@@ -10,4 +10,12 @@ class Card extends Model
     {
         $this->belongsTo(Set::class);
     }
+
+    public function config()
+    {
+        return [
+            'name' => $this->name,
+            'text' => $this->text
+        ];
+    }
 }

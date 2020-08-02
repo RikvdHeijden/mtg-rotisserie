@@ -10,4 +10,11 @@ class Player extends Model
     {
         $this->belongsTo(Draft::class);
     }
+
+    public function config()
+    {
+        return [
+            'name' => $this->name,
+        ];
+    }
 }

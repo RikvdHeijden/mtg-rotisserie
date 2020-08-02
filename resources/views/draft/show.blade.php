@@ -1,16 +1,7 @@
-<h1>{{ $draft->set->name }}</h1>
+@extends('layout')
 
-<ul>
-    @foreach($draft->players as $player)
-        <li>{{ $player->name }}</li>
-    @endforeach
-</ul>
+@section('content')
+    <draft config="{{ $config }}"></draft>
 
-<div style="display: flex; flex-wrap: wrap">
-    @foreach($draft->set->cards as $card)
-        <div style="width: 200px; height: 300px; background-color: brown; margin: 5px">
-            <div>{{ $card->name }}</div>
-            <p>{{ $card->text }}</p>
-        </div>
-    @endforeach
-</div>
+@endsection
+

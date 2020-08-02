@@ -10,4 +10,14 @@ class Set extends Model
     {
         return $this->hasMany(Card::class);
     }
+
+    public function config()
+    {
+        return [
+            'name' => $this->name,
+            'cards' => $this->cards->each(function (Card $card) {
+                return $card->config();
+            })
+        ];
+    }
 }

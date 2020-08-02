@@ -17,4 +17,14 @@ class Draft extends Model
     {
         return $this->hasMany(Player::class);
     }
+
+    public function config()
+    {
+        return [
+            'set' => $this->set->config(),
+            'players' => $this->players->each(function (Player $player) {
+                return $player->config();
+            })
+        ];
+    }
 }
