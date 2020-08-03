@@ -1938,10 +1938,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['config'],
+  props: ['config', 'player'],
   data: function data() {
     return {
+      player: {
+        id: 1,
+        name: 'test'
+      },
       draft: {
+        id: 1,
         set: {
           name: 'test',
           cards: [{
@@ -1967,17 +1972,21 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     this.draft = JSON.parse(this.config);
-    console.log(this.draft.activePlayer);
+    this.player = JSON.parse(this.player);
   },
   methods: {
     chooseCard: function chooseCard(card) {
       var _this = this;
 
+      if (this.draft.activePlayer !== this.player.id) {
+        return;
+      }
+
       if (this.getPick(card)) {
         return;
       }
 
-      axios.post('/draft/1/pick', card).then(function (res) {
+      axios.post("/draft/".concat(this.draft.id, "/pick"), card).then(function (res) {
         _this.draft = res.data;
       });
     },
@@ -43608,7 +43617,11 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "container" }, [
-    _c("h1", [_vm._v(_vm._s(_vm.draft.set.name))]),
+    _c("h1", [
+      _vm._v(
+        _vm._s(_vm.draft.set.name) + " ( " + _vm._s(_vm.player.name) + " )"
+      )
+    ]),
     _vm._v(" "),
     _c(
       "ul",

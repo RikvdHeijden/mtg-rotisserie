@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Player extends Model
 {
+    protected $fillable = ['name', 'draft_id'];
     public function draft()
     {
         $this->belongsTo(Draft::class);

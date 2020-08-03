@@ -13,5 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/draft/join', 'DraftController@index');
+Route::post('/draft/join', 'DraftController@store');
+
 Route::get('/drafts/{draft}', 'DraftController@show');
 Route::post('/draft/{draft}/pick', 'PickController@store');

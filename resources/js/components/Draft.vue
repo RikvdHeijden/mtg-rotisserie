@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h1>{{ draft.set.name }}</h1>
+        <h1>{{ draft.set.name }} ( {{ player.name }} )</h1>
 
         <ul>
             <li v-for="player in draft.players" :class="{'player--active': player.id === draft.activePlayer}">
@@ -29,11 +29,16 @@
 
 <script>
     export default {
-        props: ['config'],
+        props: ['config', 'player'],
 
         data() {
             return {
+                player:  {
+                    id: 1,
+                    name: 'test'
+                },
                 draft: {
+                    id: 1,
                     set: {
                         name: 'test',
                         cards: [
@@ -66,15 +71,20 @@
 
         mounted() {
             this.draft = JSON.parse(this.config);
-            console.log(this.draft.activePlayer);
+            this.player = JSON.parse(this.player);
         },
 
         methods: {
             chooseCard: function (card) {
+                if (this.draft.activePlayer !== this.player.id) {
+                    return;
+                }
+
                 if (this.getPick(card)) {
                     return;
                 }
-                axios.post('/draft/1/pick', card)
+
+                axios.post(`/draft/${this.draft.id}/pick`, card)
                     .then(res => {
                         this.draft = res.data;
                     })

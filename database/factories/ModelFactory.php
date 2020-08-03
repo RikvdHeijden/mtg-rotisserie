@@ -18,7 +18,8 @@ use Illuminate\Support\Str;
 
 $factory->define(\App\Draft::class, function (Faker $faker) {
     return [
-        'set_id' => factory(\App\Set::class)
+        'set_id' => factory(\App\Set::class),
+        'code' => $faker->asciify('*****')
     ];
 });
 
