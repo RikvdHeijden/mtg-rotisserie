@@ -1931,6 +1931,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['config'],
   data: function data() {
@@ -1948,6 +1954,13 @@ __webpack_require__.r(__webpack_exports__);
           id: 1,
           name: 'test'
         }],
+        picks: [{
+          player: {
+            id: 1,
+            name: 'test'
+          },
+          card: 1
+        }],
         activePlayer: 1
       }
     };
@@ -1960,9 +1973,18 @@ __webpack_require__.r(__webpack_exports__);
     chooseCard: function chooseCard(card) {
       var _this = this;
 
+      if (this.getPick(card)) {
+        return;
+      }
+
       axios.post('/draft/1/pick', card).then(function (res) {
         _this.draft = res.data;
       });
+    },
+    getPick: function getPick(card) {
+      return this.draft.picks.filter(function (pick) {
+        return pick.card_id === card.id;
+      })[0];
     }
   }
 });
@@ -43615,12 +43637,8 @@ var render = function() {
         return _c(
           "div",
           {
-            staticStyle: {
-              width: "200px",
-              height: "300px",
-              "background-color": "brown",
-              margin: "5px"
-            },
+            staticClass: "card",
+            class: { "card--picked": _vm.getPick(card) },
             on: {
               click: function($event) {
                 return _vm.chooseCard(card)
@@ -43628,6 +43646,16 @@ var render = function() {
             }
           },
           [
+            _vm.getPick(card)
+              ? _c("span", [
+                  _vm._v(
+                    "\n                Picked by " +
+                      _vm._s(_vm.getPick(card).player.name) +
+                      "\n            "
+                  )
+                ])
+              : _vm._e(),
+            _vm._v(" "),
             _c("div", [_vm._v(_vm._s(card.name))]),
             _vm._v(" "),
             _c("p", [_vm._v(_vm._s(card.text))])

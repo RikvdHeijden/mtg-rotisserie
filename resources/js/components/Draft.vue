@@ -11,9 +11,15 @@
         <div style="display: flex; flex-wrap: wrap">
             <div
                 v-for="card in draft.set.cards"
-                style="width: 200px; height: 300px; background-color: brown; margin: 5px"
+                class="card"
+                :class="{ 'card--picked': getPick(card) }"
                 @click="chooseCard(card)"
             >
+                <span
+                    v-if="getPick(card)"
+                >
+                    Picked by {{ getPick(card).player.name }}
+                </span>
                 <div>{{ card.name }}</div>
                 <p>{{ card.text }}</p>
             </div>
@@ -44,6 +50,15 @@
                             name: 'test'
                         }
                     ],
+                    picks: [
+                        {
+                            player: {
+                                id: 1,
+                                name: 'test'
+                            },
+                            card: 1
+                        }
+                    ],
                     activePlayer: 1,
                 }
             }
@@ -56,10 +71,19 @@
 
         methods: {
             chooseCard: function (card) {
+                if (this.getPick(card)) {
+                    return;
+                }
                 axios.post('/draft/1/pick', card)
                     .then(res => {
                         this.draft = res.data;
                     })
+            },
+
+            getPick: function (card) {
+                return this.draft.picks.filter(function (pick) {
+                    return pick.card_id === card.id;
+                })[0];
             }
         }
     }

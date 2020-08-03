@@ -18,12 +18,20 @@ class Draft extends Model
         return $this->hasMany(Player::class);
     }
 
+    public function picks()
+    {
+        return $this->hasMany(Pick::class);
+    }
+
     public function config()
     {
         return [
             'set' => $this->set->config(),
             'players' => $this->players->each(function (Player $player) {
                 return $player->config();
+            }),
+            'picks' => $this->picks->each(function (Pick $pick) {
+                return $pick->config();
             }),
             'activePlayer' => $this->players->get($this->active_player_index)->id
         ];
@@ -33,5 +41,10 @@ class Draft extends Model
     {
         $this->active_player_index = ($this->active_player_index + 1) % $this->players->count();
         $this->save();
+    }
+
+    public function currentPlayer()
+    {
+        return $this->players->get($this->active_player_index);
     }
 }
