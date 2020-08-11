@@ -5,11 +5,13 @@ namespace App\Events;
 use App\Draft;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class DraftStarts implements ShouldBroadcast
+class CardPicked implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -38,5 +40,10 @@ class DraftStarts implements ShouldBroadcast
         return [
             'draft.' . $this->draft->id
         ];
+    }
+
+    public function broadcastWith()
+    {
+        return [];
     }
 }

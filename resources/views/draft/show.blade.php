@@ -1,6 +1,6 @@
 @extends('layout')
 
 @section('content')
-    <draft config="{{ $config }}" player="{{ $player }}"></draft>
+    <draft config="{{ $config }}" playerdata="{{ $player }}"></draft>
 @endsection
 

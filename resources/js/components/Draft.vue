@@ -29,7 +29,7 @@
 
 <script>
     export default {
-        props: ['config', 'player'],
+        props: ['config', 'playerdata'],
 
         data() {
             return {
@@ -71,7 +71,11 @@
 
         mounted() {
             this.draft = JSON.parse(this.config);
-            this.player = JSON.parse(this.player);
+            this.player = JSON.parse(this.playerdata);
+            Echo.channel('draft.' + this.draft.id)
+                .listen('CardPicked', (draft) => {
+                    this.refreshDraft();
+                });
         },
 
         methods: {
@@ -85,15 +89,24 @@
                 }
 
                 axios.post(`/draft/${this.draft.id}/pick`, card)
-                    .then(res => {
-                        this.draft = res.data;
-                    })
             },
 
             getPick: function (card) {
                 return this.draft.picks.filter(function (pick) {
                     return pick.card_id === card.id;
                 })[0];
+            },
+
+            refreshDraft: function () {
+                axios.get(`/drafts/${this.draft.id}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).then(res => {
+                    this.draft = res.data.config;
+                }).catch(error => {
+                    console.error(error);
+                })
             }
         }
     }

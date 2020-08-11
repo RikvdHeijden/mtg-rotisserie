@@ -13,7 +13,3 @@ use Illuminate\Support\Facades\Artisan;
 | simple approach to interacting with each command's IO methods.
 |
 */
-
-Artisan::command('startDraft', function () {
-    event(new \App\Events\DraftStarts(\App\Draft::first()));
-})->describe('Start a draft');

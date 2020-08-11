@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Draft;
+use App\Events\CardPicked;
 use App\Pick;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,8 @@ class PickController extends Controller
         ]);
 
         $draft->proceedToNextPlayer();
-        return $draft->config();
+        $draft->refresh();
+
+        event(new CardPicked($draft));
     }
 }

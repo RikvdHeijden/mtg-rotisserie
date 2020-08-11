@@ -18,7 +18,7 @@ class DraftController extends Controller
     public function show(Request $request, Draft $draft)
     {
         $code_draft = Draft::find($request->session()->get('draft'));
-        if ($draft === null || $code_draft->id !== $draft->id) {
+        if ($code_draft === null || $code_draft->id !== $draft->id) {
             // TODO error message
             return response()->redirectTo('draft/join');
         }
@@ -28,6 +28,14 @@ class DraftController extends Controller
             // TODO error message
             return response()->redirectTo('draft/join');
         }
+
+        if ($request->acceptsJson() && !$request->acceptsHtml()) {
+            return json_encode([
+                'config' => $draft->config(),
+                'player' => $player->config()
+            ]);
+        }
+
         return view('draft.show', [
             'config' => json_encode($draft->config()),
             'player' => json_encode($player->config())
@@ -43,7 +51,7 @@ class DraftController extends Controller
         if ($player !== null) {
             // TODO error message
             // TODO is this an attempt to rejoin?
-            return response()->redirectTo('draft/join');
+            //return response()->redirectTo('draft/join');
         }
 
         if ($draft === null) {

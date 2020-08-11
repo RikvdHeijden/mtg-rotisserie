@@ -1938,7 +1938,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['config', 'player'],
+  props: ['config', 'playerdata'],
   data: function data() {
     return {
       player: {
@@ -1971,13 +1971,16 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
+    var _this = this;
+
     this.draft = JSON.parse(this.config);
-    this.player = JSON.parse(this.player);
+    this.player = JSON.parse(this.playerdata);
+    Echo.channel('draft.' + this.draft.id).listen('CardPicked', function (draft) {
+      _this.refreshDraft();
+    });
   },
   methods: {
     chooseCard: function chooseCard(card) {
-      var _this = this;
-
       if (this.draft.activePlayer !== this.player.id) {
         return;
       }
@@ -1986,14 +1989,25 @@ __webpack_require__.r(__webpack_exports__);
         return;
       }
 
-      axios.post("/draft/".concat(this.draft.id, "/pick"), card).then(function (res) {
-        _this.draft = res.data;
-      });
+      axios.post("/draft/".concat(this.draft.id, "/pick"), card);
     },
     getPick: function getPick(card) {
       return this.draft.picks.filter(function (pick) {
         return pick.card_id === card.id;
       })[0];
+    },
+    refreshDraft: function refreshDraft() {
+      var _this2 = this;
+
+      axios.get("/drafts/".concat(this.draft.id), {
+        headers: {
+          'Accept': 'application/json'
+        }
+      }).then(function (res) {
+        _this2.draft = res.data.config;
+      })["catch"](function (error) {
+        console.error(error);
+      });
     }
   }
 });
