@@ -1936,10 +1936,56 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['config', 'playerdata'],
   data: function data() {
     return {
+      filters: {
+        search: '',
+        cmcs: {
+          0: false,
+          1: false,
+          2: false,
+          3: false,
+          4: false,
+          5: false,
+          6: false,
+          '7+': false
+        },
+        filter_colors: {
+          'B': false,
+          'G': false,
+          'R': false,
+          'U': false,
+          'W': false,
+          'C': false
+        },
+        rarities: {
+          'common': false,
+          'uncommon': false,
+          'rare': false,
+          'mythic': false
+        }
+      },
       player: {
         id: 1,
         name: 'test'
@@ -1976,14 +2022,94 @@ __webpack_require__.r(__webpack_exports__);
       }
     };
   },
-  mounted: function mounted() {
-    var _this = this;
+  computed: {
+    cards: function cards() {
+      var _this = this;
 
+      return this.draft.set.cards.filter(function (card) {
+        var filtered = false;
+
+        if (_this.filters.search) {
+          filtered = true;
+
+          var search = _this.filters.search.toLowerCase().trim();
+
+          if (card.name.toLowerCase().includes(search) || card.text.toLowerCase().includes(search) || card.type_line.toLowerCase().includes(search)) {
+            filtered = false;
+          }
+
+          if (filtered) {
+            return false;
+          }
+        }
+
+        if (Object.values(_this.filters.cmcs).filter(function (x) {
+          return x;
+        }).length > 0) {
+          filtered = true;
+          Object.keys(_this.filters.cmcs).forEach(function (k) {
+            if (_this.filters.cmcs[k]) {
+              if (k === '7+' && card.cmc >= 7) {
+                filtered = false;
+              }
+
+              if (card.cmc === k) {
+                filtered = false;
+              }
+            }
+          });
+
+          if (filtered) {
+            return false;
+          }
+        }
+
+        if (Object.values(_this.filters.filter_colors).filter(function (x) {
+          return x;
+        }).length > 0) {
+          filtered = true;
+          Object.keys(_this.filters.filter_colors).forEach(function (k) {
+            if (_this.filters.filter_colors[k]) {
+              if (k === 'C' && card.colors === '') {
+                filtered = false;
+              }
+
+              if (card.colors.includes(k)) {
+                filtered = false;
+              }
+            }
+          });
+
+          if (filtered) {
+            return false;
+          }
+        }
+
+        if (Object.values(_this.filters.rarities).filter(function (x) {
+          return x;
+        }).length > 0) {
+          filtered = true;
+          Object.keys(_this.filters.rarities).forEach(function (k) {
+            if (_this.filters.rarities[k]) {
+              if (card.rarity === k) {
+                filtered = false;
+              }
+            }
+          });
+
+          if (filtered) {
+            return false;
+          }
+        }
+
+        return !filtered;
+      });
+    }
+  },
+  mounted: function mounted() {
     this.draft = JSON.parse(this.config);
     this.player = JSON.parse(this.playerdata);
-    Echo.channel('draft.' + this.draft.id).listen('CardPicked', function (draft) {
-      _this.refreshDraft();
-    });
+    Echo.channel('draft.' + this.draft.id).listen('CardPicked', this.refreshDraft);
   },
   methods: {
     chooseCard: function chooseCard(card) {
@@ -43665,8 +43791,204 @@ var render = function() {
     _vm._v(" "),
     _c(
       "div",
+      [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.filters.search,
+              expression: "filters.search"
+            }
+          ],
+          attrs: { type: "text" },
+          domProps: { value: _vm.filters.search },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.filters, "search", $event.target.value)
+            }
+          }
+        }),
+        _vm._v(" "),
+        _c("br"),
+        _vm._v(" "),
+        _vm._l(_vm.filters.cmcs, function(val, cmc) {
+          return _c("span", [
+            _c("label", { attrs: { for: "cmc_" + cmc } }, [
+              _vm._v(_vm._s(cmc))
+            ]),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.filters.cmcs[cmc],
+                  expression: "filters.cmcs[cmc]"
+                }
+              ],
+              attrs: { type: "checkbox", id: "cmc_" + cmc, name: "cmc_" + cmc },
+              domProps: {
+                checked: Array.isArray(_vm.filters.cmcs[cmc])
+                  ? _vm._i(_vm.filters.cmcs[cmc], null) > -1
+                  : _vm.filters.cmcs[cmc]
+              },
+              on: {
+                change: function($event) {
+                  var $$a = _vm.filters.cmcs[cmc],
+                    $$el = $event.target,
+                    $$c = $$el.checked ? true : false
+                  if (Array.isArray($$a)) {
+                    var $$v = null,
+                      $$i = _vm._i($$a, $$v)
+                    if ($$el.checked) {
+                      $$i < 0 &&
+                        _vm.$set(_vm.filters.cmcs, cmc, $$a.concat([$$v]))
+                    } else {
+                      $$i > -1 &&
+                        _vm.$set(
+                          _vm.filters.cmcs,
+                          cmc,
+                          $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                        )
+                    }
+                  } else {
+                    _vm.$set(_vm.filters.cmcs, cmc, $$c)
+                  }
+                }
+              }
+            })
+          ])
+        }),
+        _vm._v(" "),
+        _c("br"),
+        _vm._v(" "),
+        _vm._l(_vm.filters.filter_colors, function(val, filter_color) {
+          return _c("span", [
+            _c("label", { attrs: { for: "filter_color_" + filter_color } }, [
+              _vm._v(_vm._s(filter_color))
+            ]),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.filters.filter_colors[filter_color],
+                  expression: "filters.filter_colors[filter_color]"
+                }
+              ],
+              attrs: {
+                type: "checkbox",
+                id: "filter_color_" + filter_color,
+                name: "filter_color_" + filter_color
+              },
+              domProps: {
+                checked: Array.isArray(_vm.filters.filter_colors[filter_color])
+                  ? _vm._i(_vm.filters.filter_colors[filter_color], null) > -1
+                  : _vm.filters.filter_colors[filter_color]
+              },
+              on: {
+                change: function($event) {
+                  var $$a = _vm.filters.filter_colors[filter_color],
+                    $$el = $event.target,
+                    $$c = $$el.checked ? true : false
+                  if (Array.isArray($$a)) {
+                    var $$v = null,
+                      $$i = _vm._i($$a, $$v)
+                    if ($$el.checked) {
+                      $$i < 0 &&
+                        _vm.$set(
+                          _vm.filters.filter_colors,
+                          filter_color,
+                          $$a.concat([$$v])
+                        )
+                    } else {
+                      $$i > -1 &&
+                        _vm.$set(
+                          _vm.filters.filter_colors,
+                          filter_color,
+                          $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                        )
+                    }
+                  } else {
+                    _vm.$set(_vm.filters.filter_colors, filter_color, $$c)
+                  }
+                }
+              }
+            })
+          ])
+        }),
+        _vm._v(" "),
+        _c("br"),
+        _vm._v(" "),
+        _vm._l(_vm.filters.rarities, function(val, rarity) {
+          return _c("span", [
+            _c("label", { attrs: { for: "rarity_" + rarity } }, [
+              _vm._v(_vm._s(rarity))
+            ]),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.filters.rarities[rarity],
+                  expression: "filters.rarities[rarity]"
+                }
+              ],
+              attrs: {
+                type: "checkbox",
+                id: "rarity_" + rarity,
+                name: "rarity_" + rarity
+              },
+              domProps: {
+                checked: Array.isArray(_vm.filters.rarities[rarity])
+                  ? _vm._i(_vm.filters.rarities[rarity], null) > -1
+                  : _vm.filters.rarities[rarity]
+              },
+              on: {
+                change: function($event) {
+                  var $$a = _vm.filters.rarities[rarity],
+                    $$el = $event.target,
+                    $$c = $$el.checked ? true : false
+                  if (Array.isArray($$a)) {
+                    var $$v = null,
+                      $$i = _vm._i($$a, $$v)
+                    if ($$el.checked) {
+                      $$i < 0 &&
+                        _vm.$set(
+                          _vm.filters.rarities,
+                          rarity,
+                          $$a.concat([$$v])
+                        )
+                    } else {
+                      $$i > -1 &&
+                        _vm.$set(
+                          _vm.filters.rarities,
+                          rarity,
+                          $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                        )
+                    }
+                  } else {
+                    _vm.$set(_vm.filters.rarities, rarity, $$c)
+                  }
+                }
+              }
+            })
+          ])
+        })
+      ],
+      2
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
       { staticStyle: { display: "flex", "flex-wrap": "wrap" } },
-      _vm._l(_vm.draft.set.cards, function(card) {
+      _vm._l(_vm.cards, function(card) {
         return _c(
           "div",
           {
