@@ -34,18 +34,26 @@ class Draft extends Model
             'picks' => $this->picks->each(function (Pick $pick) {
                 return $pick->config();
             }),
-            'activePlayer' => $this->players->get($this->active_player_index)->id
+            'activePlayer' => $this->currentPlayer()->id
         ];
     }
 
     public function proceedToNextPlayer()
     {
-        $this->active_player_index = ($this->active_player_index + 1) % $this->players->count();
+        $this->active_player_index = ($this->active_player_index + 1) % ($this->players()->count() * 2);
         $this->save();
     }
 
     public function currentPlayer()
     {
-        return $this->players->get($this->active_player_index);
+        $player_turn_mapping = [];
+
+        foreach ($this->players as $player) {
+            $player_turn_mapping[] = $player;
+        }
+
+        $player_turn_mapping = array_merge($player_turn_mapping, array_reverse($player_turn_mapping));
+
+        return $player_turn_mapping[$this->active_player_index];
     }
 }
