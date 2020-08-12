@@ -20,8 +20,7 @@
                 >
                     Picked by {{ getPick(card).player.name }}
                 </span>
-                <div>{{ card.name }}</div>
-                <p>{{ card.text }}</p>
+                <img :src="card.normal_image" />
             </div>
         </div>
     </div>
@@ -45,7 +44,14 @@
                             {
                                 id: 1,
                                 name: 'name',
-                                text: 'text'
+                                text: 'text',
+                                small_image: '',
+                                normal_image: '',
+                                large_image: '',
+                                colors: '',
+                                cmc: '',
+                                type_line: '',
+                                rarity: '',
                             }
                         ]
                     },

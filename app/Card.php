@@ -28,7 +28,14 @@ class Card extends Model
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'text' => $this->text
+            'text' => $this->text,
+            'small_image' => $this->small_image,
+            'normal_image' => $this->normal_image,
+            'large_image' => $this->large_image,
+            'colors' => $this->colors,
+            'cmc' => $this->cmc,
+            'type_line' => $this->type_line,
+            'rarity' => $this->rarity,
         ];
     }
 }
