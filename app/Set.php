@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Set extends Model
 {
+    protected $fillable = ['name', 'code'];
     public function cards()
     {
         return $this->hasMany(Card::class);

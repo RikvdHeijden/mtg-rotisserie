@@ -18,6 +18,13 @@ class CreateCardsTable extends Migration
             $table->integer('set_id')->unsigned();
             $table->text('name');
             $table->text('text');
+            $table->text('small_image');
+            $table->text('normal_image');
+            $table->text('large_image');
+            $table->text('colors');
+            $table->text('cmc');
+            $table->text('type_line');
+            $table->text('rarity');
             $table->timestamps();
         });
     }

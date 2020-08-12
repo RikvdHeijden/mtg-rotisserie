@@ -16,6 +16,7 @@ class CreateSetsTable extends Migration
         Schema::create('sets', function (Blueprint $table) {
             $table->id();
             $table->text('name');
+            $table->text('code');
             $table->timestamps();
         });
     }

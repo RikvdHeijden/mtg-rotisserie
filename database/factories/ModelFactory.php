@@ -25,7 +25,8 @@ $factory->define(\App\Draft::class, function (Faker $faker) {
 
 $factory->define(\App\Set::class, function (Faker $faker) {
     return [
-        'name' => $faker->text(5)
+        'name' => $faker->text(5),
+        'code' => $faker->asciify('***')
     ];
 });
 
@@ -33,7 +34,14 @@ $factory->define(\App\Card::class, function (Faker $faker) {
     return [
         'set_id' => factory(\App\Set::class),
         'name' => $faker->lastName,
-        'text' => $faker->text
+        'text' => $faker->text,
+        'small_image' => '',
+        'normal_image' => '',
+        'large_image' => '',
+        'colors' => '',
+        'cmc' => '',
+        'type_line' => '',
+        'rarity' => '',
     ];
 });
 $factory->define(\App\Player::class, function (Faker $faker) {
