@@ -1899,6 +1899,75 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Deck.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Deck.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['picks'],
+  data: function data() {
+    return {
+      open: true
+    };
+  },
+  computed: {
+    columns: function columns() {
+      var columns = {
+        0: [],
+        1: [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+        6: [],
+        7: [],
+        8: []
+      };
+      this.picks.forEach(function (pick) {
+        columns[pick.column].push(pick.card);
+      });
+      return columns;
+    }
+  },
+  methods: {
+    toggleState: function toggleState() {
+      this.open = !this.open;
+    },
+    registerDrop: function registerDrop(column, e) {
+      e.preventDefault();
+      var cardId = e.dataTransfer.getData('card');
+      this.$emit('cardMoved', cardId, column);
+      this.$forceUpdate();
+    },
+    registerDrag: function registerDrag(id, e) {
+      e.dataTransfer.setData('card', id);
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Draft.vue?vue&type=script&lang=js&":
 /*!****************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Draft.vue?vue&type=script&lang=js& ***!
@@ -1955,10 +2024,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['config', 'playerdata'],
   data: function data() {
     return {
+      deckKey: 0,
       filters: {
         search: '',
         cmcs: {
@@ -2016,10 +2088,11 @@ __webpack_require__.r(__webpack_exports__);
             id: 1,
             name: 'test'
           },
-          card: 1
+          card_id: 1
         }],
         activePlayer: 1
-      }
+      },
+      pickColumnMapping: {}
     };
   },
   computed: {
@@ -2104,6 +2177,26 @@ __webpack_require__.r(__webpack_exports__);
 
         return !filtered;
       });
+    },
+    picks: function picks() {
+      var _this2 = this;
+
+      this.deckKey;
+      return this.draft.picks.filter(function (pick) {
+        return pick.player.id === _this2.player.id;
+      }).map(function (pick) {
+        pick.card = _this2.draft.set.cards.filter(function (card) {
+          return card.id === pick.card_id;
+        })[0];
+
+        if (pick.card_id in _this2.pickColumnMapping) {
+          pick.column = _this2.pickColumnMapping[pick.card_id];
+        } else {
+          pick.column = Math.min(pick.card.cmc, 8);
+        }
+
+        return pick;
+      });
     }
   },
   mounted: function mounted() {
@@ -2129,17 +2222,29 @@ __webpack_require__.r(__webpack_exports__);
       })[0];
     },
     refreshDraft: function refreshDraft() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.get("/drafts/".concat(this.draft.id), {
         headers: {
           'Accept': 'application/json'
         }
       }).then(function (res) {
-        _this2.draft = res.data.config;
+        _this3.draft = res.data.config;
       })["catch"](function (error) {
         console.error(error);
       });
+    },
+    moveCard: function moveCard(cardId, column) {
+      var _this4 = this;
+
+      var picks = this.draft.picks;
+      picks.forEach(function (pick) {
+        if (pick.card_id == cardId && pick.player.id === _this4.player.id) {
+          _this4.pickColumnMapping[pick.card_id] = column;
+        }
+      });
+      this.deckKey++;
+      this.draft.picks = picks;
     }
   }
 });
@@ -43747,6 +43852,85 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Deck.vue?vue&type=template&id=753411d8&":
+/*!*******************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Deck.vue?vue&type=template&id=753411d8& ***!
+  \*******************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "deck", style: { height: _vm.open ? "500px" : "30px" } },
+    [
+      _c("h2", [
+        _vm._v("DECKTIME\n        "),
+        _c("button", {
+          staticStyle: { float: "right" },
+          domProps: { innerHTML: _vm._s(_vm.open ? "V" : "^") },
+          on: { click: _vm.toggleState }
+        })
+      ]),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "deck-column-container" },
+        _vm._l(_vm.columns, function(columnPicks, column) {
+          return _c(
+            "div",
+            {
+              staticClass: "deck-column",
+              attrs: { id: "column-" + column },
+              on: {
+                dragover: function($event) {
+                  return $event.preventDefault()
+                },
+                dragenter: function($event) {
+                  return $event.preventDefault()
+                },
+                drop: function($event) {
+                  return _vm.registerDrop(column, $event)
+                }
+              }
+            },
+            _vm._l(columnPicks, function(pick) {
+              return _c(
+                "div",
+                {
+                  staticClass: "deck__card",
+                  attrs: { draggable: "true" },
+                  on: {
+                    dragstart: function($event) {
+                      return _vm.registerDrag(pick.id, $event)
+                    }
+                  }
+                },
+                [_c("img", { attrs: { src: pick.small_image } })]
+              )
+            }),
+            0
+          )
+        }),
+        0
+      )
+    ]
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Draft.vue?vue&type=template&id=81a58c74&":
 /*!********************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Draft.vue?vue&type=template&id=81a58c74& ***!
@@ -43762,262 +43946,281 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container" }, [
-    _c("h1", [
-      _vm._v(
-        _vm._s(_vm.draft.set.name) + " ( " + _vm._s(_vm.player.name) + " )"
-      )
-    ]),
-    _vm._v(" "),
-    _c(
-      "ul",
-      _vm._l(_vm.draft.players, function(player) {
-        return _c(
-          "li",
-          { class: { "player--active": player.id === _vm.draft.activePlayer } },
-          [
-            _vm._v(
-              "\n            " +
-                _vm._s(player.id) +
-                " " +
-                _vm._s(player.name) +
-                "\n        "
-            )
-          ]
+  return _c(
+    "div",
+    { staticClass: "container" },
+    [
+      _c("h1", [
+        _vm._v(
+          _vm._s(_vm.draft.set.name) + " ( " + _vm._s(_vm.player.name) + " )"
         )
-      }),
-      0
-    ),
-    _vm._v(" "),
-    _c(
-      "div",
-      [
-        _c("input", {
-          directives: [
+      ]),
+      _vm._v(" "),
+      _c(
+        "ul",
+        _vm._l(_vm.draft.players, function(player) {
+          return _c(
+            "li",
             {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.filters.search,
-              expression: "filters.search"
-            }
-          ],
-          attrs: { type: "text" },
-          domProps: { value: _vm.filters.search },
-          on: {
-            input: function($event) {
-              if ($event.target.composing) {
-                return
-              }
-              _vm.$set(_vm.filters, "search", $event.target.value)
-            }
-          }
+              class: { "player--active": player.id === _vm.draft.activePlayer }
+            },
+            [
+              _vm._v(
+                "\n            " +
+                  _vm._s(player.id) +
+                  " " +
+                  _vm._s(player.name) +
+                  "\n        "
+              )
+            ]
+          )
         }),
-        _vm._v(" "),
-        _c("br"),
-        _vm._v(" "),
-        _vm._l(_vm.filters.cmcs, function(val, cmc) {
-          return _c("span", [
-            _c("label", { attrs: { for: "cmc_" + cmc } }, [
-              _vm._v(_vm._s(cmc))
-            ]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.filters.cmcs[cmc],
-                  expression: "filters.cmcs[cmc]"
-                }
-              ],
-              attrs: { type: "checkbox", id: "cmc_" + cmc, name: "cmc_" + cmc },
-              domProps: {
-                checked: Array.isArray(_vm.filters.cmcs[cmc])
-                  ? _vm._i(_vm.filters.cmcs[cmc], null) > -1
-                  : _vm.filters.cmcs[cmc]
-              },
-              on: {
-                change: function($event) {
-                  var $$a = _vm.filters.cmcs[cmc],
-                    $$el = $event.target,
-                    $$c = $$el.checked ? true : false
-                  if (Array.isArray($$a)) {
-                    var $$v = null,
-                      $$i = _vm._i($$a, $$v)
-                    if ($$el.checked) {
-                      $$i < 0 &&
-                        _vm.$set(_vm.filters.cmcs, cmc, $$a.concat([$$v]))
-                    } else {
-                      $$i > -1 &&
-                        _vm.$set(
-                          _vm.filters.cmcs,
-                          cmc,
-                          $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                        )
-                    }
-                  } else {
-                    _vm.$set(_vm.filters.cmcs, cmc, $$c)
-                  }
-                }
+        0
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        [
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.filters.search,
+                expression: "filters.search"
               }
-            })
-          ])
-        }),
-        _vm._v(" "),
-        _c("br"),
-        _vm._v(" "),
-        _vm._l(_vm.filters.filter_colors, function(val, filter_color) {
-          return _c("span", [
-            _c("label", { attrs: { for: "filter_color_" + filter_color } }, [
-              _vm._v(_vm._s(filter_color))
-            ]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.filters.filter_colors[filter_color],
-                  expression: "filters.filter_colors[filter_color]"
-                }
-              ],
-              attrs: {
-                type: "checkbox",
-                id: "filter_color_" + filter_color,
-                name: "filter_color_" + filter_color
-              },
-              domProps: {
-                checked: Array.isArray(_vm.filters.filter_colors[filter_color])
-                  ? _vm._i(_vm.filters.filter_colors[filter_color], null) > -1
-                  : _vm.filters.filter_colors[filter_color]
-              },
-              on: {
-                change: function($event) {
-                  var $$a = _vm.filters.filter_colors[filter_color],
-                    $$el = $event.target,
-                    $$c = $$el.checked ? true : false
-                  if (Array.isArray($$a)) {
-                    var $$v = null,
-                      $$i = _vm._i($$a, $$v)
-                    if ($$el.checked) {
-                      $$i < 0 &&
-                        _vm.$set(
-                          _vm.filters.filter_colors,
-                          filter_color,
-                          $$a.concat([$$v])
-                        )
-                    } else {
-                      $$i > -1 &&
-                        _vm.$set(
-                          _vm.filters.filter_colors,
-                          filter_color,
-                          $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                        )
-                    }
-                  } else {
-                    _vm.$set(_vm.filters.filter_colors, filter_color, $$c)
-                  }
-                }
-              }
-            })
-          ])
-        }),
-        _vm._v(" "),
-        _c("br"),
-        _vm._v(" "),
-        _vm._l(_vm.filters.rarities, function(val, rarity) {
-          return _c("span", [
-            _c("label", { attrs: { for: "rarity_" + rarity } }, [
-              _vm._v(_vm._s(rarity))
-            ]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.filters.rarities[rarity],
-                  expression: "filters.rarities[rarity]"
-                }
-              ],
-              attrs: {
-                type: "checkbox",
-                id: "rarity_" + rarity,
-                name: "rarity_" + rarity
-              },
-              domProps: {
-                checked: Array.isArray(_vm.filters.rarities[rarity])
-                  ? _vm._i(_vm.filters.rarities[rarity], null) > -1
-                  : _vm.filters.rarities[rarity]
-              },
-              on: {
-                change: function($event) {
-                  var $$a = _vm.filters.rarities[rarity],
-                    $$el = $event.target,
-                    $$c = $$el.checked ? true : false
-                  if (Array.isArray($$a)) {
-                    var $$v = null,
-                      $$i = _vm._i($$a, $$v)
-                    if ($$el.checked) {
-                      $$i < 0 &&
-                        _vm.$set(
-                          _vm.filters.rarities,
-                          rarity,
-                          $$a.concat([$$v])
-                        )
-                    } else {
-                      $$i > -1 &&
-                        _vm.$set(
-                          _vm.filters.rarities,
-                          rarity,
-                          $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                        )
-                    }
-                  } else {
-                    _vm.$set(_vm.filters.rarities, rarity, $$c)
-                  }
-                }
-              }
-            })
-          ])
-        })
-      ],
-      2
-    ),
-    _vm._v(" "),
-    _c(
-      "div",
-      { staticStyle: { display: "flex", "flex-wrap": "wrap" } },
-      _vm._l(_vm.cards, function(card) {
-        return _c(
-          "div",
-          {
-            staticClass: "card",
-            class: { "card--picked": _vm.getPick(card) },
+            ],
+            attrs: { type: "text" },
+            domProps: { value: _vm.filters.search },
             on: {
-              click: function($event) {
-                return _vm.chooseCard(card)
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.$set(_vm.filters, "search", $event.target.value)
               }
             }
-          },
-          [
-            _vm.getPick(card)
-              ? _c("span", [
-                  _vm._v(
-                    "\n                Picked by " +
-                      _vm._s(_vm.getPick(card).player.name) +
-                      "\n            "
+          }),
+          _vm._v(" "),
+          _c("br"),
+          _vm._v(" "),
+          _vm._l(_vm.filters.cmcs, function(val, cmc) {
+            return _c("span", [
+              _c("label", { attrs: { for: "cmc_" + cmc } }, [
+                _vm._v(_vm._s(cmc))
+              ]),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.filters.cmcs[cmc],
+                    expression: "filters.cmcs[cmc]"
+                  }
+                ],
+                attrs: {
+                  type: "checkbox",
+                  id: "cmc_" + cmc,
+                  name: "cmc_" + cmc
+                },
+                domProps: {
+                  checked: Array.isArray(_vm.filters.cmcs[cmc])
+                    ? _vm._i(_vm.filters.cmcs[cmc], null) > -1
+                    : _vm.filters.cmcs[cmc]
+                },
+                on: {
+                  change: function($event) {
+                    var $$a = _vm.filters.cmcs[cmc],
+                      $$el = $event.target,
+                      $$c = $$el.checked ? true : false
+                    if (Array.isArray($$a)) {
+                      var $$v = null,
+                        $$i = _vm._i($$a, $$v)
+                      if ($$el.checked) {
+                        $$i < 0 &&
+                          _vm.$set(_vm.filters.cmcs, cmc, $$a.concat([$$v]))
+                      } else {
+                        $$i > -1 &&
+                          _vm.$set(
+                            _vm.filters.cmcs,
+                            cmc,
+                            $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                          )
+                      }
+                    } else {
+                      _vm.$set(_vm.filters.cmcs, cmc, $$c)
+                    }
+                  }
+                }
+              })
+            ])
+          }),
+          _vm._v(" "),
+          _c("br"),
+          _vm._v(" "),
+          _vm._l(_vm.filters.filter_colors, function(val, filter_color) {
+            return _c("span", [
+              _c("label", { attrs: { for: "filter_color_" + filter_color } }, [
+                _vm._v(_vm._s(filter_color))
+              ]),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.filters.filter_colors[filter_color],
+                    expression: "filters.filter_colors[filter_color]"
+                  }
+                ],
+                attrs: {
+                  type: "checkbox",
+                  id: "filter_color_" + filter_color,
+                  name: "filter_color_" + filter_color
+                },
+                domProps: {
+                  checked: Array.isArray(
+                    _vm.filters.filter_colors[filter_color]
                   )
-                ])
-              : _vm._e(),
-            _vm._v(" "),
-            _c("img", { attrs: { src: card.normal_image } })
-          ]
-        )
-      }),
-      0
-    )
-  ])
+                    ? _vm._i(_vm.filters.filter_colors[filter_color], null) > -1
+                    : _vm.filters.filter_colors[filter_color]
+                },
+                on: {
+                  change: function($event) {
+                    var $$a = _vm.filters.filter_colors[filter_color],
+                      $$el = $event.target,
+                      $$c = $$el.checked ? true : false
+                    if (Array.isArray($$a)) {
+                      var $$v = null,
+                        $$i = _vm._i($$a, $$v)
+                      if ($$el.checked) {
+                        $$i < 0 &&
+                          _vm.$set(
+                            _vm.filters.filter_colors,
+                            filter_color,
+                            $$a.concat([$$v])
+                          )
+                      } else {
+                        $$i > -1 &&
+                          _vm.$set(
+                            _vm.filters.filter_colors,
+                            filter_color,
+                            $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                          )
+                      }
+                    } else {
+                      _vm.$set(_vm.filters.filter_colors, filter_color, $$c)
+                    }
+                  }
+                }
+              })
+            ])
+          }),
+          _vm._v(" "),
+          _c("br"),
+          _vm._v(" "),
+          _vm._l(_vm.filters.rarities, function(val, rarity) {
+            return _c("span", [
+              _c("label", { attrs: { for: "rarity_" + rarity } }, [
+                _vm._v(_vm._s(rarity))
+              ]),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.filters.rarities[rarity],
+                    expression: "filters.rarities[rarity]"
+                  }
+                ],
+                attrs: {
+                  type: "checkbox",
+                  id: "rarity_" + rarity,
+                  name: "rarity_" + rarity
+                },
+                domProps: {
+                  checked: Array.isArray(_vm.filters.rarities[rarity])
+                    ? _vm._i(_vm.filters.rarities[rarity], null) > -1
+                    : _vm.filters.rarities[rarity]
+                },
+                on: {
+                  change: function($event) {
+                    var $$a = _vm.filters.rarities[rarity],
+                      $$el = $event.target,
+                      $$c = $$el.checked ? true : false
+                    if (Array.isArray($$a)) {
+                      var $$v = null,
+                        $$i = _vm._i($$a, $$v)
+                      if ($$el.checked) {
+                        $$i < 0 &&
+                          _vm.$set(
+                            _vm.filters.rarities,
+                            rarity,
+                            $$a.concat([$$v])
+                          )
+                      } else {
+                        $$i > -1 &&
+                          _vm.$set(
+                            _vm.filters.rarities,
+                            rarity,
+                            $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                          )
+                      }
+                    } else {
+                      _vm.$set(_vm.filters.rarities, rarity, $$c)
+                    }
+                  }
+                }
+              })
+            ])
+          })
+        ],
+        2
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticStyle: { display: "flex", "flex-wrap": "wrap" } },
+        _vm._l(_vm.cards, function(card) {
+          return _c(
+            "div",
+            {
+              staticClass: "card",
+              class: { "card--picked": _vm.getPick(card) },
+              on: {
+                click: function($event) {
+                  return _vm.chooseCard(card)
+                }
+              }
+            },
+            [
+              _vm.getPick(card)
+                ? _c("span", [
+                    _vm._v(
+                      "\n                Picked by " +
+                        _vm._s(_vm.getPick(card).player.name) +
+                        "\n            "
+                    )
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _c("img", { attrs: { src: card.normal_image } })
+            ]
+          )
+        }),
+        0
+      ),
+      _vm._v(" "),
+      _c("deck", {
+        key: _vm.deckKey,
+        attrs: { picks: _vm.picks },
+        on: { cardMoved: _vm.moveCard }
+      })
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -56214,6 +56417,7 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component('draft', __webpack_require__(/*! ./components/Draft.vue */ "./resources/js/components/Draft.vue")["default"]);
+Vue.component('deck', __webpack_require__(/*! ./components/Deck.vue */ "./resources/js/components/Deck.vue")["default"]);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -56272,6 +56476,75 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   cluster: "eu",
   forceTLS: true
 });
+
+/***/ }),
+
+/***/ "./resources/js/components/Deck.vue":
+/*!******************************************!*\
+  !*** ./resources/js/components/Deck.vue ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Deck_vue_vue_type_template_id_753411d8___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Deck.vue?vue&type=template&id=753411d8& */ "./resources/js/components/Deck.vue?vue&type=template&id=753411d8&");
+/* harmony import */ var _Deck_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Deck.vue?vue&type=script&lang=js& */ "./resources/js/components/Deck.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _Deck_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Deck_vue_vue_type_template_id_753411d8___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Deck_vue_vue_type_template_id_753411d8___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/Deck.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/Deck.vue?vue&type=script&lang=js&":
+/*!*******************************************************************!*\
+  !*** ./resources/js/components/Deck.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Deck_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./Deck.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Deck.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Deck_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/Deck.vue?vue&type=template&id=753411d8&":
+/*!*************************************************************************!*\
+  !*** ./resources/js/components/Deck.vue?vue&type=template&id=753411d8& ***!
+  \*************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Deck_vue_vue_type_template_id_753411d8___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./Deck.vue?vue&type=template&id=753411d8& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Deck.vue?vue&type=template&id=753411d8&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Deck_vue_vue_type_template_id_753411d8___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Deck_vue_vue_type_template_id_753411d8___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
 
 /***/ }),
 

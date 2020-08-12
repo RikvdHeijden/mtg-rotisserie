@@ -20,3 +20,38 @@
 .card--picked {
     background-color: grey;
 }
+
+.deck {
+    position: fixed;
+    background: #504d4d;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: scroll;
+
+    transition: height 0.2s ease-out;
+}
+
+.deck-column-container {
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.deck-column {
+    display: inline-block;
+    background-color: #0C9A9A;
+    height: 100%;
+    width: 150px;
+    margin: 5px;
+}
+
+.deck__card:not(:last-child) {
+    height: 20px;
+    overflow: hidden;
+}
+
+.deck__card:hover {
+    height: auto;
+}

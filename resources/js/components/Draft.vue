@@ -42,6 +42,8 @@
                 <img :src="card.normal_image" />
             </div>
         </div>
+
+        <deck :picks="picks" v-on:cardMoved="moveCard" :key="deckKey"></deck>
     </div>
 </template>
 
@@ -51,6 +53,7 @@
 
         data() {
             return {
+                deckKey: 0,
                 filters: {
                     search: '',
                     cmcs: {
@@ -113,11 +116,12 @@
                                 id: 1,
                                 name: 'test'
                             },
-                            card: 1
+                            card_id: 1
                         }
                     ],
                     activePlayer: 1,
-                }
+                },
+                pickColumnMapping: {},
             }
         },
 
@@ -201,6 +205,22 @@
 
                     return !filtered;
                 });
+            },
+
+            picks: function () {
+                this.deckKey;
+                return this.draft.picks
+                    .filter(pick => pick.player.id === this.player.id)
+                    .map(pick => {
+                        pick.card = this.draft.set.cards.filter(card => card.id === pick.card_id)[0];
+                        if (pick.card_id in this.pickColumnMapping) {
+                            pick.column = this.pickColumnMapping[pick.card_id];
+                        } else {
+                            pick.column = Math.min(pick.card.cmc, 8);
+                        }
+
+                        return pick;
+                    });
             }
         },
 
@@ -241,6 +261,19 @@
                     console.error(error);
                 })
             },
+
+            moveCard: function(cardId, column) {
+                const picks = this.draft.picks;
+
+                picks.forEach(pick => {
+                    if (pick.card_id == cardId && pick.player.id === this.player.id) {
+                        this.pickColumnMapping[pick.card_id] = column;
+                    }
+                });
+
+                this.deckKey++;
+                this.draft.picks = picks;
+            }
         }
     }
 </script>
