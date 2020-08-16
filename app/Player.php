@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Player extends Model
 {
-    protected $fillable = ['name', 'draft_id'];
+    protected $fillable = ['name', 'draft_id', 'admin'];
     public function draft()
     {
-        $this->belongsTo(Draft::class);
+        return $this->belongsTo(Draft::class);
     }
 
     public function picks()
@@ -22,6 +22,7 @@ class Player extends Model
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'admin' => $this->admin,
             'active' => $this->active,
         ];
     }

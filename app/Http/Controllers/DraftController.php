@@ -3,18 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Draft;
+use App\Events\CardPicked;
 use App\Player;
 use App\Set;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DraftController extends Controller
 {
-    public function index()
-    {
-        $sets = Set::all();
-        return view('draft.join', ['sets' => $sets]);
-    }
-
     public function show(Request $request, Draft $draft)
     {
         $code_draft = Draft::find($request->session()->get('draft'));
@@ -42,38 +39,32 @@ class DraftController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        return view('draft.create', ['sets' => Set::all()]);
+    }
+
     public function store(Request $request)
     {
-        $draft = Draft::whereCode($request->get('code'))->first();
+        $request->session()->remove('draft');
+        $request->session()->remove('player');
         $set = Set::find($request->get('set'));
-        $player = Player::whereName($request->get('name'))->first();
 
-        if ($player !== null) {
-            // TODO error message
-            // TODO is this an attempt to rejoin?
-            //return response()->redirectTo('draft/join');
+        if ($set === null) {
+            // TODO message: set not found
+            return  response()->redirectTo('draft/create');
         }
 
-        if ($draft === null) {
-            if ($set === null) {
-                // TODO error message
-                return response()->redirectTo('draft/join');
-            }
-
-            $draft = Draft::create([
-                'code' => $request->get('code'),
-                'set_id' => $set->id,
-            ]);
-        }
-
-        if ($set !== null && $draft->set->id !== $set->id) {
-            // TODO error message
-            return response()->redirectTo('draft/join');
-        }
+        $draft = Draft::create([
+            'set_id' => $set->id,
+            'code' => Str::random(6),
+            'password' => Hash::make($request->get('password')),
+        ]);
 
         $player = Player::create([
             'name' => $request->get('name'),
             'draft_id' => $draft->id,
+            'admin' => true,
         ]);
 
         $request->session()->put('draft', $draft->id);
@@ -82,7 +73,25 @@ class DraftController extends Controller
         return response()->redirectTo('drafts/' . $draft->id);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, Draft $draft)
+    {
+        $player = Player::find($request->session()->get('player'));
+
+        if ($player->draft->id !== $draft->id) {
+            return null;
+        }
+
+        if (!$player->admin) {
+            return null;
+        }
+
+        $draft->started = true;
+        $draft->save();
+
+        event(new CardPicked($draft));
+    }
+
+    public function delete(Request $request)
     {
         $player = Player::find($request->session()->get('player'));
         $draft = Draft::whereCode($request->get('code'))->first();
@@ -98,5 +107,6 @@ class DraftController extends Controller
 
         $request->session()->remove('draft');
         $request->session()->remove('player');
+        event(new CardPicked($draft));
     }
 }

@@ -18,6 +18,7 @@ class CreatePlayersTable extends Migration
             $table->text('name');
             $table->integer('draft_id')->unsigned();
             $table->boolean('active')->default(true);
+            $table->boolean('admin')->default(false);
             $table->timestamps();
         });
     }

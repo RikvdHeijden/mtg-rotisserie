@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Draft extends Model
 {
-    protected $fillable = ['set_id', 'code'];
+    protected $fillable = ['set_id', 'code', 'password'];
 
     public function set()
     {
@@ -32,6 +32,8 @@ class Draft extends Model
     {
         return [
             'id' => $this->id,
+            'started' => $this->started,
+            'code' => $this->code,
             'set' => $this->set->config(),
             'players' => $this->players->each(function (Player $player) {
                 return $player->config();

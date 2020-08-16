@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container" >
         <h1>{{ draft.set.name }} ( {{ player.name }} )</h1>
 
         <ul>
@@ -8,53 +8,64 @@
             </li>
         </ul>
 
-        <div>
-            <input type="text" v-model="filters.search" />
-            <br />
-            <span v-for="(val, cmc) in filters.cmcs">
+        <div v-if="draft.started">
+            <div>
+                <input type="text" v-model="filters.search" />
+                <br />
+                <span v-for="(val, cmc) in filters.cmcs">
                 <label :for="`cmc_${cmc}`">{{ cmc }}</label>
                 <input type="checkbox" v-model="filters.cmcs[cmc]" :id="`cmc_${cmc}`" :name="`cmc_${cmc}`"/>
             </span>
-            <br />
-            <span v-for="(val, filter_color) in filters.filter_colors">
+                <br />
+                <span v-for="(val, filter_color) in filters.filter_colors">
                 <label :for="`filter_color_${filter_color}`">{{ filter_color }}</label>
                 <input type="checkbox" v-model="filters.filter_colors[filter_color]" :id="`filter_color_${filter_color}`" :name="`filter_color_${filter_color}`"/>
             </span>
-            <br>
-            <span v-for="(val, rarity) in filters.rarities">
+                <br>
+                <span v-for="(val, rarity) in filters.rarities">
                 <label :for="`rarity_${rarity}`">{{ rarity }}</label>
                 <input type="checkbox" v-model="filters.rarities[rarity]" :id="`rarity_${rarity}`" :name="`rarity_${rarity}`"/>
             </span>
-        </div>
+            </div>
 
-        <div style="display: flex; flex-wrap: wrap">
-            <div
-                v-for="card in cards"
-                class="card"
-                :class="{ 'card--picked': getPick(card) }"
-                @click="chooseCard(card)"
-            >
+            <div style="display: flex; flex-wrap: wrap">
+                <div
+                    v-for="card in cards"
+                    class="card"
+                    :class="{ 'card--picked': getPick(card) }"
+                    @click="chooseCard(card)"
+                >
                 <span
                     v-if="getPick(card)"
                 >
                     Picked by {{ getPick(card).player.name }}
                 </span>
-                <img :src="card.normal_image" />
+                    <img :src="card.normal_image" />
+                </div>
             </div>
+
+            <deck
+                :picks="picks"
+                v-on:cardMoved="moveCard"
+                v-on:openExporter="exporterOpen = true"
+                :key="deckKey"></deck>
+            <export
+                :picks="picks"
+                :key="deckKey + 'exporter'"
+                :open="exporterOpen"
+                :setCode="draft.set.code"
+                v-on:closeExporter="exporterOpen = false"
+            ></export>
+        </div>
+        <div v-else>
+            <h2>The draft is about to start!</h2>
+            <p>People can join this draft with code <b>{{ draft.code }}</b> and the password the admin chose when they created the draft.</p>
+            <p v-if="player.admin">
+                Once everybody has joined you can start the draft. No more players can join the draft at that point, so be careful!
+            </p>
+            <button @click="startDraft" v-if="player.admin">Start!</button>
         </div>
 
-        <deck
-            :picks="picks"
-            v-on:cardMoved="moveCard"
-            v-on:openExporter="exporterOpen = true"
-            :key="deckKey"></deck>
-        <export
-            :picks="picks"
-            :key="deckKey + 'exporter'"
-            :open="exporterOpen"
-            :setCode="draft.set.code"
-            v-on:closeExporter="exporterOpen = false"
-        ></export>
         <div id="options" class="options">
             <label for="sb_option">Add new cards to deck</label>
             <input type="checkbox" v-model="options.addCardsToDeck" id="sb_option">
@@ -107,6 +118,7 @@
                 },
                 draft: {
                     id: 1,
+                    started: 0,
                     set: {
                         name: 'test',
                         code: 'tst',
@@ -306,10 +318,14 @@
 
             leaveDraft: function () {
                 if (window.confirm('Do you really want to leave this draft? Did you remember to export your deck to Arena?')) {
-                    axios.put(`/drafts/${this.draft.id}/leave`).then(e => {
+                    axios.delete(`/drafts/${this.draft.id}/leave`).then(e => {
                         window.location = '/';
                     });
                 }
+            },
+
+            startDraft: function () {
+                axios.put(`/drafts/${this.draft.id}/start`);
             }
         }
     }
