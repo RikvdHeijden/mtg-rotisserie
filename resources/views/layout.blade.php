@@ -11,6 +11,13 @@
 </head>
 <body>
 <div id="app">
+    <div class="flash-message">
+        @foreach (['danger', 'warning', 'success', 'info'] as $msg)
+            @if(Session::has('alert-' . $msg))
+                <p class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }}</p>
+            @endif
+        @endforeach
+    </div>
     @yield('content')
 </div>
 <script type="text/javascript" src="{{ asset('js/app.js') }}"></script>

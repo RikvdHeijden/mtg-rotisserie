@@ -16,13 +16,13 @@ class DraftController extends Controller
     {
         $code_draft = Draft::find($request->session()->get('draft'));
         if ($code_draft === null || $code_draft->id !== $draft->id) {
-            // TODO error message
+            $request->session()->flash('alert-danger', 'Draft not found');
             return response()->redirectTo('draft/join');
         }
 
         $player = Player::find($request->session()->get('player'));
         if ($player === null) {
-            // TODO error message
+            $request->session()->flash('alert-danger', 'Draft not found');
             return response()->redirectTo('draft/join');
         }
 
@@ -51,7 +51,7 @@ class DraftController extends Controller
         $set = Set::find($request->get('set'));
 
         if ($set === null) {
-            // TODO message: set not found
+            $request->session()->flash('alert-danger', 'Set not found');
             return  response()->redirectTo('draft/create');
         }
 

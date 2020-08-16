@@ -20,23 +20,23 @@ class DraftJoinController extends Controller
         $draft = Draft::whereCode($request->get('code'))->first();
         $player = Player::whereName($request->get('name'))->first();
 
-        if ($draft === null) {
-            // TODO error message: no such draft
+        if ($draft === null || !Hash::check($request->get('password'), $draft->password)) {
+            $request->session()->flash('alert-danger', 'Could not find a draft with this code / password');
             return response()->redirectTo('draft/join');
         }
 
         if ($draft->started) {
-            // TODO error message: cannot join a draft that already started
-            return response()->redirectTo('draft/join');
-        }
-
-        if (!Hash::check($request->get('password'), $draft->password)) {
-            // TODO error message: wrong password
+            $request->session()->flash('alert-danger', 'Draft already started');
             return response()->redirectTo('draft/join');
         }
 
         if ($player !== null) {
-            // TODO error message: player with this name already exists in draft
+            $request->session()->flash('alert-danger', 'This name is already taken in this draft');
+            return response()->redirectTo('draft/join');
+        }
+
+        if ($request->get('name') === null || $request->get('name') === '') {
+            $request->session()->flash('alert-danger', 'Please choose a name');
             return response()->redirectTo('draft/join');
         }
 
