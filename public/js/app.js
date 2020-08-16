@@ -1932,12 +1932,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['picks'],
-  data: function data() {
-    return {
-      open: false
-    };
-  },
+  props: ['picks', 'open'],
   computed: {
     columns: function columns() {
       var columns = {
@@ -1948,8 +1943,7 @@ __webpack_require__.r(__webpack_exports__);
         4: [],
         5: [],
         6: [],
-        7: [],
-        8: []
+        7: []
       };
       this.picks.forEach(function (pick) {
         if (pick.column !== 'sb') {
@@ -1965,9 +1959,6 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    toggleState: function toggleState() {
-      this.open = !this.open;
-    },
     registerDrop: function registerDrop(column, e) {
       e.preventDefault();
       var cardId = e.dataTransfer.getData('card');
@@ -2067,12 +2058,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['config', 'playerdata'],
   data: function data() {
     return {
       deckKey: 0,
       exporterOpen: false,
+      deckViewOpen: false,
       options: {
         addCardsToDeck: true
       },
@@ -2089,11 +2093,11 @@ __webpack_require__.r(__webpack_exports__);
           '7+': false
         },
         filter_colors: {
-          'B': false,
-          'G': false,
-          'R': false,
-          'U': false,
           'W': false,
+          'U': false,
+          'B': false,
+          'R': false,
+          'G': false,
           'C': false
         },
         rarities: {
@@ -2239,7 +2243,7 @@ __webpack_require__.r(__webpack_exports__);
         if (pick.card_id in _this2.pickColumnMapping) {
           pick.column = _this2.pickColumnMapping[pick.card_id];
         } else {
-          pick.column = Math.min(pick.card.cmc, 8);
+          pick.column = Math.min(pick.card.cmc, 7);
         }
 
         return pick;
@@ -2277,7 +2281,7 @@ __webpack_require__.r(__webpack_exports__);
     refreshDraft: function refreshDraft() {
       var _this4 = this;
 
-      axios.get("/drafts/".concat(this.draft.id), {
+      axios.get("/drafts/".concat(this.draft.code), {
         headers: {
           'Accept': 'application/json'
         }
@@ -43987,21 +43991,32 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "deck", style: { height: _vm.open ? "500px" : "30px" } },
+    {
+      staticClass: "deck",
+      style: {
+        height: _vm.open ? "500px" : "60px",
+        overflowY: _vm.open ? "scroll" : "none"
+      }
+    },
     [
       _c("h2", [
-        _vm._v("DECKTIME\n        "),
+        _vm._v("Deck\n        "),
         _c("button", {
+          staticClass: "btn btn-outline-dark",
           staticStyle: { float: "right" },
           domProps: { innerHTML: _vm._s(_vm.open ? "V" : "^") },
-          on: { click: _vm.toggleState }
+          on: {
+            click: function($event) {
+              return _vm.$emit("toggleDeckView")
+            }
+          }
         })
       ]),
       _vm._v(" "),
       _c(
         "button",
         {
-          staticStyle: { float: "right" },
+          staticClass: "btn btn-sm btn-info",
           on: {
             click: function($event) {
               return _vm.$emit("openExporter")
@@ -44055,7 +44070,7 @@ var render = function() {
           _c(
             "div",
             {
-              staticClass: "deck-column",
+              staticClass: "deck-column deck-column--sideboard",
               attrs: { id: "sideboard" },
               on: {
                 dragover: function($event) {
@@ -44127,18 +44142,16 @@ var render = function() {
     _vm._v(" "),
     _c(
       "ul",
+      { staticClass: "player-list" },
       _vm._l(_vm.draft.players, function(player) {
         return _c(
           "li",
-          { class: { "player--active": player.id === _vm.draft.activePlayer } },
+          {
+            staticClass: "player",
+            class: { "player--active": player.id === _vm.draft.activePlayer }
+          },
           [
-            _vm._v(
-              "\n            " +
-                _vm._s(player.id) +
-                " " +
-                _vm._s(player.name) +
-                " "
-            ),
+            _vm._v("\n            " + _vm._s(player.name) + " "),
             !player.active ? _c("span", [_vm._v("(inactive)")]) : _vm._e()
           ]
         )
@@ -44150,220 +44163,260 @@ var render = function() {
       ? _c(
           "div",
           [
-            _c(
-              "div",
-              [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.filters.search,
-                      expression: "filters.search"
-                    }
-                  ],
-                  attrs: { type: "text" },
-                  domProps: { value: _vm.filters.search },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
+            _c("div", { staticClass: "search" }, [
+              _c("h3", [_vm._v("search")]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c("div", { staticClass: "col-sm-12" }, [
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.filters.search,
+                        expression: "filters.search"
                       }
-                      _vm.$set(_vm.filters, "search", $event.target.value)
-                    }
-                  }
-                }),
-                _vm._v(" "),
-                _c("br"),
-                _vm._v(" "),
-                _vm._l(_vm.filters.cmcs, function(val, cmc) {
-                  return _c("span", [
-                    _c("label", { attrs: { for: "cmc_" + cmc } }, [
-                      _vm._v(_vm._s(cmc))
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.filters.cmcs[cmc],
-                          expression: "filters.cmcs[cmc]"
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text", id: "search_text" },
+                    domProps: { value: _vm.filters.search },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
                         }
-                      ],
-                      attrs: {
-                        type: "checkbox",
-                        id: "cmc_" + cmc,
-                        name: "cmc_" + cmc
-                      },
-                      domProps: {
-                        checked: Array.isArray(_vm.filters.cmcs[cmc])
-                          ? _vm._i(_vm.filters.cmcs[cmc], null) > -1
-                          : _vm.filters.cmcs[cmc]
-                      },
-                      on: {
-                        change: function($event) {
-                          var $$a = _vm.filters.cmcs[cmc],
-                            $$el = $event.target,
-                            $$c = $$el.checked ? true : false
-                          if (Array.isArray($$a)) {
-                            var $$v = null,
-                              $$i = _vm._i($$a, $$v)
-                            if ($$el.checked) {
-                              $$i < 0 &&
-                                _vm.$set(
-                                  _vm.filters.cmcs,
-                                  cmc,
-                                  $$a.concat([$$v])
-                                )
-                            } else {
-                              $$i > -1 &&
-                                _vm.$set(
-                                  _vm.filters.cmcs,
-                                  cmc,
-                                  $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                )
-                            }
-                          } else {
-                            _vm.$set(_vm.filters.cmcs, cmc, $$c)
-                          }
-                        }
+                        _vm.$set(_vm.filters, "search", $event.target.value)
                       }
-                    })
-                  ])
-                }),
-                _vm._v(" "),
-                _c("br"),
-                _vm._v(" "),
+                    }
+                  })
+                ])
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "input-group" },
                 _vm._l(_vm.filters.filter_colors, function(val, filter_color) {
-                  return _c("span", [
-                    _c(
-                      "label",
-                      { attrs: { for: "filter_color_" + filter_color } },
-                      [_vm._v(_vm._s(filter_color))]
-                    ),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.filters.filter_colors[filter_color],
-                          expression: "filters.filter_colors[filter_color]"
-                        }
-                      ],
-                      attrs: {
-                        type: "checkbox",
-                        id: "filter_color_" + filter_color,
-                        name: "filter_color_" + filter_color
-                      },
-                      domProps: {
-                        checked: Array.isArray(
-                          _vm.filters.filter_colors[filter_color]
-                        )
-                          ? _vm._i(
-                              _vm.filters.filter_colors[filter_color],
-                              null
-                            ) > -1
-                          : _vm.filters.filter_colors[filter_color]
-                      },
-                      on: {
-                        change: function($event) {
-                          var $$a = _vm.filters.filter_colors[filter_color],
-                            $$el = $event.target,
-                            $$c = $$el.checked ? true : false
-                          if (Array.isArray($$a)) {
-                            var $$v = null,
-                              $$i = _vm._i($$a, $$v)
-                            if ($$el.checked) {
-                              $$i < 0 &&
-                                _vm.$set(
-                                  _vm.filters.filter_colors,
-                                  filter_color,
-                                  $$a.concat([$$v])
-                                )
+                  return _c(
+                    "div",
+                    { staticClass: "form-check form-check-inline" },
+                    [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.filters.filter_colors[filter_color],
+                            expression: "filters.filter_colors[filter_color]"
+                          }
+                        ],
+                        staticClass: "form-check-input",
+                        attrs: {
+                          type: "checkbox",
+                          id: "filter_color_" + filter_color,
+                          name: "filter_color_" + filter_color
+                        },
+                        domProps: {
+                          checked: Array.isArray(
+                            _vm.filters.filter_colors[filter_color]
+                          )
+                            ? _vm._i(
+                                _vm.filters.filter_colors[filter_color],
+                                null
+                              ) > -1
+                            : _vm.filters.filter_colors[filter_color]
+                        },
+                        on: {
+                          change: function($event) {
+                            var $$a = _vm.filters.filter_colors[filter_color],
+                              $$el = $event.target,
+                              $$c = $$el.checked ? true : false
+                            if (Array.isArray($$a)) {
+                              var $$v = null,
+                                $$i = _vm._i($$a, $$v)
+                              if ($$el.checked) {
+                                $$i < 0 &&
+                                  _vm.$set(
+                                    _vm.filters.filter_colors,
+                                    filter_color,
+                                    $$a.concat([$$v])
+                                  )
+                              } else {
+                                $$i > -1 &&
+                                  _vm.$set(
+                                    _vm.filters.filter_colors,
+                                    filter_color,
+                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                                  )
+                              }
                             } else {
-                              $$i > -1 &&
-                                _vm.$set(
-                                  _vm.filters.filter_colors,
-                                  filter_color,
-                                  $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                )
+                              _vm.$set(
+                                _vm.filters.filter_colors,
+                                filter_color,
+                                $$c
+                              )
                             }
-                          } else {
-                            _vm.$set(
-                              _vm.filters.filter_colors,
-                              filter_color,
-                              $$c
-                            )
                           }
                         }
-                      }
-                    })
-                  ])
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "form-check-label",
+                          attrs: { for: "filter_color_" + filter_color }
+                        },
+                        [_vm._v(_vm._s(filter_color))]
+                      )
+                    ]
+                  )
                 }),
-                _vm._v(" "),
-                _c("br"),
-                _vm._v(" "),
-                _vm._l(_vm.filters.rarities, function(val, rarity) {
-                  return _c("span", [
-                    _c("label", { attrs: { for: "rarity_" + rarity } }, [
-                      _vm._v(_vm._s(rarity))
-                    ]),
-                    _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.filters.rarities[rarity],
-                          expression: "filters.rarities[rarity]"
-                        }
-                      ],
-                      attrs: {
-                        type: "checkbox",
-                        id: "rarity_" + rarity,
-                        name: "rarity_" + rarity
-                      },
-                      domProps: {
-                        checked: Array.isArray(_vm.filters.rarities[rarity])
-                          ? _vm._i(_vm.filters.rarities[rarity], null) > -1
-                          : _vm.filters.rarities[rarity]
-                      },
-                      on: {
-                        change: function($event) {
-                          var $$a = _vm.filters.rarities[rarity],
-                            $$el = $event.target,
-                            $$c = $$el.checked ? true : false
-                          if (Array.isArray($$a)) {
-                            var $$v = null,
-                              $$i = _vm._i($$a, $$v)
-                            if ($$el.checked) {
-                              $$i < 0 &&
-                                _vm.$set(
-                                  _vm.filters.rarities,
-                                  rarity,
-                                  $$a.concat([$$v])
-                                )
+                0
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "input-group" },
+                _vm._l(_vm.filters.cmcs, function(val, cmc) {
+                  return _c(
+                    "div",
+                    { staticClass: "form-check form-check-inline" },
+                    [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.filters.cmcs[cmc],
+                            expression: "filters.cmcs[cmc]"
+                          }
+                        ],
+                        staticClass: "form-check-input",
+                        attrs: {
+                          type: "checkbox",
+                          id: "cmc_" + cmc,
+                          name: "cmc_" + cmc
+                        },
+                        domProps: {
+                          checked: Array.isArray(_vm.filters.cmcs[cmc])
+                            ? _vm._i(_vm.filters.cmcs[cmc], null) > -1
+                            : _vm.filters.cmcs[cmc]
+                        },
+                        on: {
+                          change: function($event) {
+                            var $$a = _vm.filters.cmcs[cmc],
+                              $$el = $event.target,
+                              $$c = $$el.checked ? true : false
+                            if (Array.isArray($$a)) {
+                              var $$v = null,
+                                $$i = _vm._i($$a, $$v)
+                              if ($$el.checked) {
+                                $$i < 0 &&
+                                  _vm.$set(
+                                    _vm.filters.cmcs,
+                                    cmc,
+                                    $$a.concat([$$v])
+                                  )
+                              } else {
+                                $$i > -1 &&
+                                  _vm.$set(
+                                    _vm.filters.cmcs,
+                                    cmc,
+                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                                  )
+                              }
                             } else {
-                              $$i > -1 &&
-                                _vm.$set(
-                                  _vm.filters.rarities,
-                                  rarity,
-                                  $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                )
+                              _vm.$set(_vm.filters.cmcs, cmc, $$c)
                             }
-                          } else {
-                            _vm.$set(_vm.filters.rarities, rarity, $$c)
                           }
                         }
-                      }
-                    })
-                  ])
-                })
-              ],
-              2
-            ),
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "form-check-label",
+                          attrs: { for: "cmc_" + cmc }
+                        },
+                        [_vm._v(_vm._s(cmc))]
+                      )
+                    ]
+                  )
+                }),
+                0
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "input-group" },
+                _vm._l(_vm.filters.rarities, function(val, rarity) {
+                  return _c(
+                    "div",
+                    { staticClass: "form-check form-check-inline" },
+                    [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.filters.rarities[rarity],
+                            expression: "filters.rarities[rarity]"
+                          }
+                        ],
+                        staticClass: "form-check-input",
+                        attrs: {
+                          type: "checkbox",
+                          id: "rarity_" + rarity,
+                          name: "rarity_" + rarity
+                        },
+                        domProps: {
+                          checked: Array.isArray(_vm.filters.rarities[rarity])
+                            ? _vm._i(_vm.filters.rarities[rarity], null) > -1
+                            : _vm.filters.rarities[rarity]
+                        },
+                        on: {
+                          change: function($event) {
+                            var $$a = _vm.filters.rarities[rarity],
+                              $$el = $event.target,
+                              $$c = $$el.checked ? true : false
+                            if (Array.isArray($$a)) {
+                              var $$v = null,
+                                $$i = _vm._i($$a, $$v)
+                              if ($$el.checked) {
+                                $$i < 0 &&
+                                  _vm.$set(
+                                    _vm.filters.rarities,
+                                    rarity,
+                                    $$a.concat([$$v])
+                                  )
+                              } else {
+                                $$i > -1 &&
+                                  _vm.$set(
+                                    _vm.filters.rarities,
+                                    rarity,
+                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                                  )
+                              }
+                            } else {
+                              _vm.$set(_vm.filters.rarities, rarity, $$c)
+                            }
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "form-check-label",
+                          attrs: { for: "rarity_" + rarity }
+                        },
+                        [_vm._v(_vm._s(rarity))]
+                      )
+                    ]
+                  )
+                }),
+                0
+              )
+            ]),
             _vm._v(" "),
             _c(
               "div",
@@ -44373,7 +44426,6 @@ var render = function() {
                   "div",
                   {
                     staticClass: "card",
-                    class: { "card--picked": _vm.getPick(card) },
                     on: {
                       click: function($event) {
                         return _vm.chooseCard(card)
@@ -44382,12 +44434,13 @@ var render = function() {
                   },
                   [
                     _vm.getPick(card)
-                      ? _c("span", [
-                          _vm._v(
-                            "\n                Picked by " +
-                              _vm._s(_vm.getPick(card).player.name) +
-                              "\n            "
-                          )
+                      ? _c("span", { staticClass: "card-picked" }, [
+                          _c("span", { staticClass: "card-picked__text" }, [
+                            _vm._v(
+                              "Picked by " +
+                                _vm._s(_vm.getPick(card).player.name)
+                            )
+                          ])
                         ])
                       : _vm._e(),
                     _vm._v(" "),
@@ -44400,11 +44453,14 @@ var render = function() {
             _vm._v(" "),
             _c("deck", {
               key: _vm.deckKey,
-              attrs: { picks: _vm.picks },
+              attrs: { picks: _vm.picks, open: _vm.deckViewOpen },
               on: {
                 cardMoved: _vm.moveCard,
                 openExporter: function($event) {
                   _vm.exporterOpen = true
+                },
+                toggleDeckView: function($event) {
+                  _vm.deckViewOpen = !_vm.deckViewOpen
                 }
               }
             }),
@@ -44445,59 +44501,73 @@ var render = function() {
             : _vm._e(),
           _vm._v(" "),
           _vm.player.admin
-            ? _c("button", { on: { click: _vm.startDraft } }, [
-                _vm._v("Start!")
-              ])
+            ? _c(
+                "button",
+                { staticClass: "btn btn-dark", on: { click: _vm.startDraft } },
+                [_vm._v("Start!")]
+              )
             : _vm._e()
         ]),
     _vm._v(" "),
     _c("div", { staticClass: "options", attrs: { id: "options" } }, [
-      _c("label", { attrs: { for: "sb_option" } }, [
-        _vm._v("Add new cards to deck")
-      ]),
-      _vm._v(" "),
-      _c("input", {
-        directives: [
-          {
-            name: "model",
-            rawName: "v-model",
-            value: _vm.options.addCardsToDeck,
-            expression: "options.addCardsToDeck"
-          }
-        ],
-        attrs: { type: "checkbox", id: "sb_option" },
-        domProps: {
-          checked: Array.isArray(_vm.options.addCardsToDeck)
-            ? _vm._i(_vm.options.addCardsToDeck, null) > -1
-            : _vm.options.addCardsToDeck
-        },
-        on: {
-          change: function($event) {
-            var $$a = _vm.options.addCardsToDeck,
-              $$el = $event.target,
-              $$c = $$el.checked ? true : false
-            if (Array.isArray($$a)) {
-              var $$v = null,
-                $$i = _vm._i($$a, $$v)
-              if ($$el.checked) {
-                $$i < 0 &&
-                  _vm.$set(_vm.options, "addCardsToDeck", $$a.concat([$$v]))
+      _c("div", { staticClass: "form-check" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.options.addCardsToDeck,
+              expression: "options.addCardsToDeck"
+            }
+          ],
+          staticClass: "form-check-input",
+          attrs: { type: "checkbox", id: "sb_option" },
+          domProps: {
+            checked: Array.isArray(_vm.options.addCardsToDeck)
+              ? _vm._i(_vm.options.addCardsToDeck, null) > -1
+              : _vm.options.addCardsToDeck
+          },
+          on: {
+            change: function($event) {
+              var $$a = _vm.options.addCardsToDeck,
+                $$el = $event.target,
+                $$c = $$el.checked ? true : false
+              if (Array.isArray($$a)) {
+                var $$v = null,
+                  $$i = _vm._i($$a, $$v)
+                if ($$el.checked) {
+                  $$i < 0 &&
+                    _vm.$set(_vm.options, "addCardsToDeck", $$a.concat([$$v]))
+                } else {
+                  $$i > -1 &&
+                    _vm.$set(
+                      _vm.options,
+                      "addCardsToDeck",
+                      $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                    )
+                }
               } else {
-                $$i > -1 &&
-                  _vm.$set(
-                    _vm.options,
-                    "addCardsToDeck",
-                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                  )
+                _vm.$set(_vm.options, "addCardsToDeck", $$c)
               }
-            } else {
-              _vm.$set(_vm.options, "addCardsToDeck", $$c)
             }
           }
-        }
-      }),
+        }),
+        _vm._v(" "),
+        _c(
+          "label",
+          { staticClass: "form-check-label", attrs: { for: "sb_option" } },
+          [_vm._v("Add new cards to deck")]
+        )
+      ]),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.leaveDraft } }, [_vm._v("Leave draft")])
+      _c(
+        "button",
+        {
+          staticClass: "btn btn-sm btn-warning",
+          on: { click: _vm.leaveDraft }
+        },
+        [_vm._v("Leave draft")]
+      )
     ])
   ])
 }

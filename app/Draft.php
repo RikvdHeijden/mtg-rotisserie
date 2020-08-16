@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Draft extends Model
 {
-    protected $fillable = ['set_id', 'code', 'password'];
+    protected $fillable = ['set_id', 'code'];
 
     public function set()
     {

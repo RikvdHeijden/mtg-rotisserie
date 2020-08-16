@@ -18,7 +18,6 @@ class CreateDraftsTable extends Migration
             $table->integer('set_id')->unsigned();
             $table->integer('active_player_index')->unsigned()->default(0);
             $table->string('code')->unique();
-            $table->text('password');
             $table->boolean('started')->default(false);
             $table->timestamps();
         });

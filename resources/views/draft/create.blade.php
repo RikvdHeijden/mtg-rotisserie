@@ -2,24 +2,24 @@
 
 @section('content')
     <div class="container">
-        <h1>Join draft</h1>
+        <h1>Create a new draft</h1>
 
         <form action="{{ url('/draft/store') }}" method="POST">
             @csrf
-            <label for="password">Draft password</label>
-            <input type="password" name="password" id="password">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" class="form-control">
+            </div>
 
-            <label for="name">Name</label>
-            <input type="text" name="name" id="name">
-
-            <label for="set">Set</label>
-            <select name="set" id="set">
-                @foreach($sets as $set)
-                    <option value="{{ $set->id }}">{{ $set->name }}</option>
-                @endforeach
-            </select>
-
-            <button>Create</button>
+            <div class="form-group">
+                <label for="set">Set to draft</label>
+                <select name="set" id="set" class="form-control">
+                    @foreach($sets as $set)
+                        <option value="{{ $set->id }}">{{ $set->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button class="btn btn-dark">Create</button>
         </form>
     </div>
 @endsection

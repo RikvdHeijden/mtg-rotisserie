@@ -6,16 +6,17 @@
 
         <form action="{{ url('/draft/join') }}" method="POST">
             @csrf
-            <label for="code">Draft ID</label>
-            <input type="text" name="code" id="code">
+            <div class="form-group">
+                <label for="code">Draft ID</label>
+                <input type="text" name="code" id="code" value="{{ $draft_code }}" class="form-control">
+            </div>
 
-            <label for="password">Draft password</label>
-            <input type="password" name="password" id="password">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" class="form-control">
+            </div>
 
-            <label for="name">Name</label>
-            <input type="text" name="name" id="name">
-
-            <button>Join</button>
+            <button class="btn btn-dark">Join</button>
         </form>
     </div>
 @endsection

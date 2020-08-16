@@ -22,7 +22,7 @@ Route::post('/draft/join', 'DraftJoinController@store');
 Route::get('/draft/create', 'DraftController@create');
 Route::post('/draft/store', 'DraftController@store');
 
-Route::get('/drafts/{draft}', 'DraftController@show');
+Route::get('/drafts/{draft:code}', 'DraftController@show');
 Route::delete('/drafts/{draft}/leave', 'DraftController@delete');
 Route::put('/drafts/{draft}/start', 'DraftController@update');
 Route::post('/draft/{draft}/pick', 'PickController@store');

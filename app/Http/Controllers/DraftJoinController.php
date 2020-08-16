@@ -10,9 +10,18 @@ use Illuminate\Support\Facades\Hash;
 
 class DraftJoinController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
-        return view('draft.join');
+        $draft_code = null;
+
+        if ($request->has('draft_id')) {
+            $draft = Draft::where('code', $request->get('draft_id'))->first();
+            if ($draft) {
+                $draft_code = $draft->code;
+            }
+        }
+
+        return view('draft.join', ['draft_code' => $draft_code]);
     }
 
     public function store(Request $request)
@@ -20,8 +29,8 @@ class DraftJoinController extends Controller
         $draft = Draft::whereCode($request->get('code'))->first();
         $player = Player::whereName($request->get('name'))->first();
 
-        if ($draft === null || !Hash::check($request->get('password'), $draft->password)) {
-            $request->session()->flash('alert-danger', 'Could not find a draft with this code / password');
+        if ($draft === null) {
+            $request->session()->flash('alert-danger', 'Could not find a draft with this code');
             return response()->redirectTo('draft/join');
         }
 
@@ -48,6 +57,6 @@ class DraftJoinController extends Controller
         $request->session()->put('draft', $draft->id);
         $request->session()->put('player', $player->id);
 
-        return response()->redirectTo('drafts/' . $draft->id);
+        return response()->redirectTo('drafts/' . $draft->code);
     }
 }

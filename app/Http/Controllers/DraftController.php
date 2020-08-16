@@ -15,9 +15,13 @@ class DraftController extends Controller
     public function show(Request $request, Draft $draft)
     {
         $code_draft = Draft::find($request->session()->get('draft'));
-        if ($code_draft === null || $code_draft->id !== $draft->id) {
-            $request->session()->flash('alert-danger', 'Draft not found');
-            return response()->redirectTo('draft/join');
+        if ($code_draft === null) {
+            return response()->redirectTo('draft/join?draft_id=' . $draft->code);
+        }
+
+        if ($code_draft->id !== $draft->id) {
+            $request->session()->flash('alert-danger', 'You cannot join a new draft without leaving the old one first');
+            return response()->redirectTo('drafts/' . $code_draft->id);
         }
 
         $player = Player::find($request->session()->get('player'));
@@ -58,7 +62,6 @@ class DraftController extends Controller
         $draft = Draft::create([
             'set_id' => $set->id,
             'code' => Str::random(6),
-            'password' => Hash::make($request->get('password')),
         ]);
 
         $player = Player::create([
@@ -70,7 +73,7 @@ class DraftController extends Controller
         $request->session()->put('draft', $draft->id);
         $request->session()->put('player', $player->id);
 
-        return response()->redirectTo('drafts/' . $draft->id);
+        return response()->redirectTo('drafts/' . $draft->code);
     }
 
     public function update(Request $request, Draft $draft)

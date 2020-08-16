@@ -2,43 +2,51 @@
     <div class="container" >
         <h1>{{ draft.set.name }} ( {{ player.name }} )</h1>
 
-        <ul>
-            <li v-for="player in draft.players" :class="{'player--active': player.id === draft.activePlayer}">
-                {{player.id}} {{ player.name }} <span v-if="!player.active">(inactive)</span>
+        <ul class="player-list">
+            <li v-for="player in draft.players" class="player" :class="{'player--active': player.id === draft.activePlayer}">
+                {{ player.name }} <span v-if="!player.active">(inactive)</span>
             </li>
         </ul>
 
         <div v-if="draft.started">
-            <div>
-                <input type="text" v-model="filters.search" />
-                <br />
-                <span v-for="(val, cmc) in filters.cmcs">
-                <label :for="`cmc_${cmc}`">{{ cmc }}</label>
-                <input type="checkbox" v-model="filters.cmcs[cmc]" :id="`cmc_${cmc}`" :name="`cmc_${cmc}`"/>
-            </span>
-                <br />
-                <span v-for="(val, filter_color) in filters.filter_colors">
-                <label :for="`filter_color_${filter_color}`">{{ filter_color }}</label>
-                <input type="checkbox" v-model="filters.filter_colors[filter_color]" :id="`filter_color_${filter_color}`" :name="`filter_color_${filter_color}`"/>
-            </span>
-                <br>
-                <span v-for="(val, rarity) in filters.rarities">
-                <label :for="`rarity_${rarity}`">{{ rarity }}</label>
-                <input type="checkbox" v-model="filters.rarities[rarity]" :id="`rarity_${rarity}`" :name="`rarity_${rarity}`"/>
-            </span>
+            <div class="search">
+                <h3>search</h3>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <input type="text" v-model="filters.search" class="form-control" id="search_text"/>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div v-for="(val, filter_color) in filters.filter_colors" class="form-check form-check-inline">
+                        <input type="checkbox" v-model="filters.filter_colors[filter_color]" :id="`filter_color_${filter_color}`" :name="`filter_color_${filter_color}`" class="form-check-input" />
+                        <label :for="`filter_color_${filter_color}`" class="form-check-label">{{ filter_color }}</label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div v-for="(val, cmc) in filters.cmcs" class="form-check form-check-inline">
+                        <input type="checkbox" v-model="filters.cmcs[cmc]" :id="`cmc_${cmc}`" :name="`cmc_${cmc}`" class="form-check-input"/>
+                        <label :for="`cmc_${cmc}`" class="form-check-label">{{ cmc }}</label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div v-for="(val, rarity) in filters.rarities" class="form-check form-check-inline">
+                        <input type="checkbox" v-model="filters.rarities[rarity]" :id="`rarity_${rarity}`" :name="`rarity_${rarity}`" class="form-check-input"/>
+                        <label :for="`rarity_${rarity}`" class="form-check-label">{{ rarity }}</label>
+                    </div>
+                </div>
             </div>
 
             <div style="display: flex; flex-wrap: wrap">
                 <div
                     v-for="card in cards"
                     class="card"
-                    :class="{ 'card--picked': getPick(card) }"
                     @click="chooseCard(card)"
                 >
                 <span
                     v-if="getPick(card)"
+                    class="card-picked"
                 >
-                    Picked by {{ getPick(card).player.name }}
+                    <span class="card-picked__text">Picked by {{ getPick(card).player.name }}</span>
                 </span>
                     <img :src="card.normal_image" />
                 </div>
@@ -46,8 +54,10 @@
 
             <deck
                 :picks="picks"
+                :open="deckViewOpen"
                 v-on:cardMoved="moveCard"
                 v-on:openExporter="exporterOpen = true"
+                v-on:toggleDeckView="deckViewOpen = !deckViewOpen"
                 :key="deckKey"></deck>
             <export
                 :picks="picks"
@@ -63,13 +73,15 @@
             <p v-if="player.admin">
                 Once everybody has joined you can start the draft. No more players can join the draft at that point, so be careful!
             </p>
-            <button @click="startDraft" v-if="player.admin">Start!</button>
+            <button @click="startDraft" v-if="player.admin" class="btn btn-dark">Start!</button>
         </div>
 
         <div id="options" class="options">
-            <label for="sb_option">Add new cards to deck</label>
-            <input type="checkbox" v-model="options.addCardsToDeck" id="sb_option">
-            <button @click="leaveDraft">Leave draft</button>
+            <div class="form-check">
+                <input type="checkbox" v-model="options.addCardsToDeck" id="sb_option" class="form-check-input">
+                <label for="sb_option" class="form-check-label">Add new cards to deck</label>
+            </div>
+            <button @click="leaveDraft" class="btn btn-sm btn-warning">Leave draft</button>
         </div>
     </div>
 </template>
@@ -82,6 +94,7 @@
             return {
                 deckKey: 0,
                 exporterOpen: false,
+                deckViewOpen: false,
                 options: {
                     addCardsToDeck: true,
                 },
@@ -98,11 +111,11 @@
                         '7+': false,
                     },
                     filter_colors: {
-                        'B': false,
-                        'G': false,
-                        'R': false,
-                        'U': false,
                         'W': false,
+                        'U': false,
+                        'B': false,
+                        'R': false,
+                        'G': false,
                         'C': false
                     },
                     rarities: {
@@ -249,7 +262,7 @@
                         if (pick.card_id in this.pickColumnMapping) {
                             pick.column = this.pickColumnMapping[pick.card_id];
                         } else {
-                            pick.column = Math.min(pick.card.cmc, 8);
+                            pick.column = Math.min(pick.card.cmc, 7);
                         }
 
                         return pick;
@@ -288,7 +301,7 @@
             },
 
             refreshDraft: function () {
-                axios.get(`/drafts/${this.draft.id}`, {
+                axios.get(`/drafts/${this.draft.code}`, {
                     headers: {
                         'Accept': 'application/json'
                     }
