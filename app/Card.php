@@ -16,6 +16,7 @@ class Card extends Model
         'cmc',
         'type_line',
         'rarity',
+        'collector_number',
     ];
 
     public function set()
@@ -36,6 +37,7 @@ class Card extends Model
             'cmc' => $this->cmc,
             'type_line' => $this->type_line,
             'rarity' => $this->rarity,
+            'collector_number' => $this->collector_number,
         ];
     }
 }

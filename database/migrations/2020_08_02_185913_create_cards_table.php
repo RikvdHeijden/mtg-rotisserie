@@ -25,6 +25,7 @@ class CreateCardsTable extends Migration
             $table->text('cmc');
             $table->text('type_line');
             $table->text('rarity');
+            $table->text('collector_number');
             $table->timestamps();
         });
     }

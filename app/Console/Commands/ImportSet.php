@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Card;
 use App\Set;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class ImportSet extends Command
@@ -14,7 +15,7 @@ class ImportSet extends Command
      *
      * @var string
      */
-    protected $signature = 'import:set {set}';
+    protected $signature = 'import:set {set} {--booster-only}';
 
     /**
      * The console command description.
@@ -41,6 +42,7 @@ class ImportSet extends Command
     public function handle()
     {
         $set_to_import = $this->argument('set');
+        $booster_only = $this->option('booster-only') ? '+is%3Abooster' : '';
         $this->output->text("Starting import of set {$set_to_import}");
         $api_endpoint = 'https://api.scryfall.com';
 
@@ -64,7 +66,7 @@ class ImportSet extends Command
         sleep(0.1); // Be a good Scryfall citizen
 
         //Get card data
-        $cards_request = "{$api_endpoint}/cards/search?order=set&q=set%3A{$set_data->code}+is%3Abooster&unique=cards";
+        $cards_request = "{$api_endpoint}/cards/search?order=set&q=set%3A{$set_data->code}{$booster_only}&unique=cards";
         $all_cards = [];
         do {
             $cards_response = Http::get($cards_request);
@@ -92,28 +94,39 @@ class ImportSet extends Command
 
         $this->output->text("Collected {$card_count} cards. Starting import:");
 
-        $set = Set::create([
-            'name' => $set_data->name,
-            'code' => $set_data->code,
-        ]);
-
         $this->output->progressStart($card_count);
 
-        foreach ($all_cards as $card) {
-            Card::create([
-                'set_id' => $set->id,
-                'name' => $card->name,
-                'small_image' => $card->image_uris->small,
-                'normal_image' => $card->image_uris->normal,
-                'large_image' => $card->image_uris->large,
-                'colors' => implode(',', $card->colors),
-                'cmc' => $card->cmc,
-                'type_line' => $card->type_line,
-                'text' => $card->oracle_text,
-                'rarity' => $card->rarity,
+        DB::transaction(function () use ($set_data, $all_cards) {
+            $set = Set::create([
+                'name' => $set_data->name,
+                'code' => $set_data->code,
             ]);
-            $this->output->progressAdvance();
-        }
+
+            foreach ($all_cards as $card) {
+                $oracle_text = '';
+                if (property_exists($card, 'card_faces')) {
+                    foreach ($card->card_faces as $card_face) {
+                        $oracle_text .= $card_face->oracle_text . ' // ';
+                    }
+                }
+
+                Card::create([
+                    'set_id' => $set->id,
+                    'name' => $card->name,
+                    'small_image' => $card->image_uris->small,
+                    'normal_image' => $card->image_uris->normal,
+                    'large_image' => $card->image_uris->large,
+                    'colors' => implode(',', $card->colors),
+                    'cmc' => $card->cmc,
+                    'type_line' => $card->type_line,
+                    'text' => $card->oracle_text ?? $oracle_text,
+                    'rarity' => $card->rarity,
+                    'collector_number' => $card->collector_number,
+                ]);
+                $this->output->progressAdvance();
+            }
+        });
+
 
         $this->output->progressFinish();
 
