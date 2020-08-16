@@ -10977,3 +10977,21 @@ a.text-dark:focus {
   height: auto;
 }
 
+.export {
+  background-color: whitesmoke;
+  position: absolute;
+  top: 100px;
+  left: 50px;
+  right: 50px;
+  padding: 20px;
+  border: 1px solid black;
+}
+
+.arena-export-button__success {
+  background-color: green;
+}
+
+.arena-export-button__failed {
+  background-color: red;
+}
+

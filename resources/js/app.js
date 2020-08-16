@@ -21,6 +21,7 @@ window.Vue = require('vue');
 
 Vue.component('draft', require('./components/Draft.vue').default);
 Vue.component('deck', require('./components/Deck.vue').default);
+Vue.component('export', require('./components/Export.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

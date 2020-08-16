@@ -43,7 +43,18 @@
             </div>
         </div>
 
-        <deck :picks="picks" v-on:cardMoved="moveCard" :key="deckKey"></deck>
+        <deck
+            :picks="picks"
+            v-on:cardMoved="moveCard"
+            v-on:openExporter="exporterOpen = true"
+            :key="deckKey"></deck>
+        <export
+            :picks="picks"
+            :key="deckKey + 'exporter'"
+            :open="exporterOpen"
+            :setCode="draft.set.code"
+            v-on:closeExporter="exporterOpen = false"
+        ></export>
     </div>
 </template>
 
@@ -54,6 +65,7 @@
         data() {
             return {
                 deckKey: 0,
+                exporterOpen: true,
                 filters: {
                     search: '',
                     cmcs: {
@@ -89,6 +101,7 @@
                     id: 1,
                     set: {
                         name: 'test',
+                        code: 'tst',
                         cards: [
                             {
                                 id: 1,

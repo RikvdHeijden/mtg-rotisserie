@@ -16,6 +16,7 @@ class Set extends Model
     {
         return [
             'name' => $this->name,
+            'code' => $this->code,
             'cards' => $this->cards->each(function (Card $card) {
                 return $card->config();
             })
