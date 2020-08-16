@@ -16,10 +16,14 @@ class CreatePlayersTable extends Migration
         Schema::create('players', function (Blueprint $table) {
             $table->id();
             $table->text('name');
-            $table->integer('draft_id')->unsigned();
+            $table->bigInteger('draft_id')->unsigned();
             $table->boolean('active')->default(true);
             $table->boolean('admin')->default(false);
             $table->timestamps();
+        });
+
+        Schema::table('players', function (Blueprint $table) {
+            $table->foreign('draft_id')->references('id')->on('drafts')->onDelete('cascade');
         });
     }
 

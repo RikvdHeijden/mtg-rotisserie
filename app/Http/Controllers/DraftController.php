@@ -94,7 +94,7 @@ class DraftController extends Controller
     public function delete(Request $request)
     {
         $player = Player::find($request->session()->get('player'));
-        $draft = Draft::whereCode($request->get('code'))->first();
+        $draft = Draft::find($request->session()->get('draft'));
 
         if ($player) {
             if ($draft && $draft->currentPlayer()->id === $player->id) {
@@ -107,6 +107,14 @@ class DraftController extends Controller
 
         $request->session()->remove('draft');
         $request->session()->remove('player');
-        event(new CardPicked($draft));
+
+        if ($draft) {
+            $draft->refresh();
+            if ($draft->activePlayers()->count() > 0) {
+                event(new CardPicked($draft));
+            } else {
+                $draft->delete();
+            }
+        }
     }
 }
