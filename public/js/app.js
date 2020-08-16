@@ -2051,12 +2051,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['config', 'playerdata'],
   data: function data() {
     return {
       deckKey: 0,
-      exporterOpen: true,
+      exporterOpen: false,
+      options: {
+        addCardsToDeck: true
+      },
       filters: {
         search: '',
         cmcs: {
@@ -2233,6 +2240,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     chooseCard: function chooseCard(card) {
+      var _this3 = this;
+
       if (this.draft.activePlayer !== this.player.id) {
         return;
       }
@@ -2241,7 +2250,11 @@ __webpack_require__.r(__webpack_exports__);
         return;
       }
 
-      axios.post("/draft/".concat(this.draft.id, "/pick"), card);
+      axios.post("/draft/".concat(this.draft.id, "/pick"), card).then(function (e) {
+        if (!_this3.options.addCardsToDeck) {
+          _this3.pickColumnMapping[card.id] = 'sb';
+        }
+      });
     },
     getPick: function getPick(card) {
       return this.draft.picks.filter(function (pick) {
@@ -2249,29 +2262,32 @@ __webpack_require__.r(__webpack_exports__);
       })[0];
     },
     refreshDraft: function refreshDraft() {
-      var _this3 = this;
+      var _this4 = this;
 
       axios.get("/drafts/".concat(this.draft.id), {
         headers: {
           'Accept': 'application/json'
         }
       }).then(function (res) {
-        _this3.draft = res.data.config;
+        _this4.draft = res.data.config;
       })["catch"](function (error) {
         console.error(error);
       });
     },
     moveCard: function moveCard(cardId, column) {
-      var _this4 = this;
+      var _this5 = this;
 
       var picks = this.draft.picks;
       picks.forEach(function (pick) {
-        if (pick.card_id == cardId && pick.player.id === _this4.player.id) {
-          _this4.pickColumnMapping[pick.card_id] = column;
+        if (pick.card_id == cardId && pick.player.id === _this5.player.id) {
+          _this5.pickColumnMapping[pick.card_id] = column;
         }
       });
       this.deckKey++;
       this.draft.picks = picks;
+    },
+    updateOptions: function updateOptions(options) {
+      this.options = options;
     }
   }
 });
@@ -44369,7 +44385,54 @@ var render = function() {
             _vm.exporterOpen = false
           }
         }
-      })
+      }),
+      _vm._v(" "),
+      _c("div", { staticClass: "options", attrs: { id: "options" } }, [
+        _c("label", { attrs: { for: "sb_option" } }, [
+          _vm._v("Add new cards to deck")
+        ]),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.options.addCardsToDeck,
+              expression: "options.addCardsToDeck"
+            }
+          ],
+          attrs: { type: "checkbox", id: "sb_option" },
+          domProps: {
+            checked: Array.isArray(_vm.options.addCardsToDeck)
+              ? _vm._i(_vm.options.addCardsToDeck, null) > -1
+              : _vm.options.addCardsToDeck
+          },
+          on: {
+            change: function($event) {
+              var $$a = _vm.options.addCardsToDeck,
+                $$el = $event.target,
+                $$c = $$el.checked ? true : false
+              if (Array.isArray($$a)) {
+                var $$v = null,
+                  $$i = _vm._i($$a, $$v)
+                if ($$el.checked) {
+                  $$i < 0 &&
+                    _vm.$set(_vm.options, "addCardsToDeck", $$a.concat([$$v]))
+                } else {
+                  $$i > -1 &&
+                    _vm.$set(
+                      _vm.options,
+                      "addCardsToDeck",
+                      $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                    )
+                }
+              } else {
+                _vm.$set(_vm.options, "addCardsToDeck", $$c)
+              }
+            }
+          }
+        })
+      ])
     ],
     1
   )

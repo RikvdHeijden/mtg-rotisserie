@@ -55,6 +55,10 @@
             :setCode="draft.set.code"
             v-on:closeExporter="exporterOpen = false"
         ></export>
+        <div id="options" class="options">
+            <label for="sb_option">Add new cards to deck</label>
+            <input type="checkbox" v-model="options.addCardsToDeck" id="sb_option">
+        </div>
     </div>
 </template>
 
@@ -65,7 +69,10 @@
         data() {
             return {
                 deckKey: 0,
-                exporterOpen: true,
+                exporterOpen: false,
+                options: {
+                    addCardsToDeck: true,
+                },
                 filters: {
                     search: '',
                     cmcs: {
@@ -254,7 +261,11 @@
                     return;
                 }
 
-                axios.post(`/draft/${this.draft.id}/pick`, card)
+                axios.post(`/draft/${this.draft.id}/pick`, card).then(e => {
+                    if (!this.options.addCardsToDeck) {
+                        this.pickColumnMapping[card.id] = 'sb';
+                    }
+                });
             },
 
             getPick: function (card) {
@@ -286,6 +297,10 @@
 
                 this.deckKey++;
                 this.draft.picks = picks;
+            },
+
+            updateOptions: function (options) {
+                this.options = options;
             }
         }
     }
