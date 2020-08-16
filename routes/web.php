@@ -17,4 +17,5 @@ Route::get('/draft/join', 'DraftController@index');
 Route::post('/draft/join', 'DraftController@store');
 
 Route::get('/drafts/{draft}', 'DraftController@show');
+Route::put('/drafts/{draft}/leave', 'DraftController@update');
 Route::post('/draft/{draft}/pick', 'PickController@store');

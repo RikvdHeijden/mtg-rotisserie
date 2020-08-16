@@ -81,4 +81,22 @@ class DraftController extends Controller
 
         return response()->redirectTo('drafts/' . $draft->id);
     }
+
+    public function update(Request $request)
+    {
+        $player = Player::find($request->session()->get('player'));
+        $draft = Draft::whereCode($request->get('code'))->first();
+
+        if ($player) {
+            if ($draft && $draft->currentPlayer()->id === $player->id) {
+                $draft->proceedToNextPlayer();
+            }
+
+            $player->active = false;
+            $player->save();
+        }
+
+        $request->session()->remove('draft');
+        $request->session()->remove('player');
+    }
 }

@@ -2055,6 +2055,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['config', 'playerdata'],
   data: function data() {
@@ -2288,6 +2289,13 @@ __webpack_require__.r(__webpack_exports__);
     },
     updateOptions: function updateOptions(options) {
       this.options = options;
+    },
+    leaveDraft: function leaveDraft() {
+      if (window.confirm('Do you really want to leave this draft? Did you remember to export your deck to Arena?')) {
+        axios.put("/drafts/".concat(this.draft.id, "/leave")).then(function (e) {
+          window.location = '/';
+        });
+      }
     }
   }
 });
@@ -44119,8 +44127,9 @@ var render = function() {
                   _vm._s(player.id) +
                   " " +
                   _vm._s(player.name) +
-                  "\n        "
-              )
+                  " "
+              ),
+              !player.active ? _c("span", [_vm._v("(inactive)")]) : _vm._e()
             ]
           )
         }),
@@ -44431,7 +44440,9 @@ var render = function() {
               }
             }
           }
-        })
+        }),
+        _vm._v(" "),
+        _c("button", { on: { click: _vm.leaveDraft } }, [_vm._v("Leave draft")])
       ])
     ],
     1

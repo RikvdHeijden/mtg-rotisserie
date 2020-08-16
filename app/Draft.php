@@ -18,6 +18,11 @@ class Draft extends Model
         return $this->hasMany(Player::class);
     }
 
+    public function activePlayers()
+    {
+        return $this->hasMany(Player::class)->whereActive(true);
+    }
+
     public function picks()
     {
         return $this->hasMany(Pick::class);
@@ -40,7 +45,7 @@ class Draft extends Model
 
     public function proceedToNextPlayer()
     {
-        $this->active_player_index = ($this->active_player_index + 1) % ($this->players()->count() * 2);
+        $this->active_player_index = ($this->active_player_index + 1) % ($this->activePlayers()->count() * 2);
         $this->save();
     }
 
@@ -48,7 +53,7 @@ class Draft extends Model
     {
         $player_turn_mapping = [];
 
-        foreach ($this->players as $player) {
+        foreach ($this->activePlayers as $player) {
             $player_turn_mapping[] = $player;
         }
 

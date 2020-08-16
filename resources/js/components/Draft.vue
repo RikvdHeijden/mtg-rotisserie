@@ -4,7 +4,7 @@
 
         <ul>
             <li v-for="player in draft.players" :class="{'player--active': player.id === draft.activePlayer}">
-                {{player.id}} {{ player.name }}
+                {{player.id}} {{ player.name }} <span v-if="!player.active">(inactive)</span>
             </li>
         </ul>
 
@@ -58,6 +58,7 @@
         <div id="options" class="options">
             <label for="sb_option">Add new cards to deck</label>
             <input type="checkbox" v-model="options.addCardsToDeck" id="sb_option">
+            <button @click="leaveDraft">Leave draft</button>
         </div>
     </div>
 </template>
@@ -301,6 +302,14 @@
 
             updateOptions: function (options) {
                 this.options = options;
+            },
+
+            leaveDraft: function () {
+                if (window.confirm('Do you really want to leave this draft? Did you remember to export your deck to Arena?')) {
+                    axios.put(`/drafts/${this.draft.id}/leave`).then(e => {
+                        window.location = '/';
+                    });
+                }
             }
         }
     }

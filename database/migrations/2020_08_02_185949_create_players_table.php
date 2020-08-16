@@ -17,6 +17,7 @@ class CreatePlayersTable extends Migration
             $table->id();
             $table->text('name');
             $table->integer('draft_id')->unsigned();
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }
