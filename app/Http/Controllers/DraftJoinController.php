@@ -27,12 +27,13 @@ class DraftJoinController extends Controller
     public function store(Request $request)
     {
         $draft = Draft::whereCode($request->get('code'))->first();
-        $player = Player::whereName($request->get('name'))->first();
 
         if ($draft === null) {
             $request->session()->flash('alert-danger', 'Could not find a draft with this code');
             return response()->redirectTo('draft/join');
         }
+
+        $player = $draft->players()->whereName($request->get('name'))->first();
 
         if ($draft->started) {
             $request->session()->flash('alert-danger', 'Draft already started');
